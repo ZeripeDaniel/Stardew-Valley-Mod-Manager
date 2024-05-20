@@ -15,37 +15,40 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 
-
-
 namespace StardewValley_Mod_Manager
 {
     public partial class MainWindow : Window
     {
-        private SoundPlayer soundPlayer;
+        #region 사운드인잇
+        private SoundPlayer Cowboy = new SoundPlayer(Properties.Resources.Cowboy); // soundPlayer 초기화
+        private SoundPlayer bigDeSelect = new SoundPlayer(Properties.Resources.bigDeSelect); // soundPlayer 초기화
+        private SoundPlayer bigSelect = new SoundPlayer(Properties.Resources.bigSelect); // soundPlayer 초기화
+        private SoundPlayer Cowboy_footstop = new SoundPlayer(Properties.Resources.Cowboy_Footstep); // soundPlayer 초기화
+        private SoundPlayer Duck = new SoundPlayer(Properties.Resources.Duck); // soundPlayer 초기화
+        private SoundPlayer Junimo = new SoundPlayer(Properties.Resources.junimo); // soundPlayer 초기화
+        private SoundPlayer Leaf = new SoundPlayer(Properties.Resources.Leaf); // soundPlayer 초기화
+        #endregion
+
+        /// <summary>
+        /// 경로 선언
+        /// </summary>
         private string smapiExecutablePath = string.Empty;
+        /// <summary>
+        /// 폴더 컨텐츠 get set
+        /// </summary>
         public ObservableCollection<FileItem> FolderContents { get; set; }
+        /// <summary>
+        /// 하단 뷰 내부폴더 컨텐츠 get set
+        /// </summary>
         public ObservableCollection<FileItem> InnerFolderContents { get; set; }
-
-        private bool allSelected = true; // 전체 선택 상태
-
+        /// <summary>
+        /// 전체 선택 상태
+        /// </summary>
+        private bool allSelected = true;
         public MainWindow()
         {
             InitializeComponent();
-            // SMAPI 경로 설정 여부 확인 및 설정 창 표시
-            if (string.IsNullOrEmpty(ConfigManager.ReadSetting("SmapiPath")))
-            {
-                string detectedPath = DetectSmapiPath();
-                if (!string.IsNullOrEmpty(detectedPath))
-                {
-                    smapiExecutablePath = detectedPath;
-                    SaveConfig("SmapiPath", smapiExecutablePath);
-                }
-                else
-                {
-                    MessageBox.Show("SMAPi가 설치되어있지 않거나 StardewValley 폴더를 찾을 수 없습니다 수동으로 설정 해 주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                    HandleSettings();
-                }
-            }
+
             FolderContents = new ObservableCollection<FileItem>();
             InnerFolderContents = new ObservableCollection<FileItem>();
             FolderContentsListView.ItemsSource = FolderContents;
@@ -53,10 +56,9 @@ namespace StardewValley_Mod_Manager
 
             try
             {
-                ConfigManager.ValidateConfig(); // config.xml 검사 및 유효하지 않은 항목 제거
                 LoadConfig();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // 예외가 발생하면 설정 창을 먼저 띄우고 설정을 완료한 후 프로그램 재시작
                 MessageBox.Show("설정 파일을 불러올 수 없습니다. 설정을 먼저 완료해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -64,18 +66,12 @@ namespace StardewValley_Mod_Manager
                 return;
             }
 
-            soundPlayer = new SoundPlayer(Properties.Resources.Cowboy);
-            int fontSizeIndex;
-            if (int.TryParse(ConfigManager.ReadSetting("FontSizeIndex"), out fontSizeIndex))
+            LoadFolders();
+
+            if (FolderListView.Items.Count > 0)
             {
-                FontSizeComboBox.SelectedIndex = fontSizeIndex;
+                FolderListView.SelectedIndex = 0;
             }
-            else
-            {
-                FontSizeComboBox.SelectedIndex = 0; // 기본 폰트 크기
-            }
-            ApplyFontSize();
-            ApplyFont(); // 폰트 설정 적용
 
             foreach (var item in FolderContents)
             {
@@ -84,7 +80,9 @@ namespace StardewValley_Mod_Manager
             }
             FolderContentsListView.Items.Refresh();
         }
-        public void ApplyFont(FontFamily fontFamily = null)
+
+
+        public void ApplyFont(FontFamily? fontFamily = null)
         {
             if (fontFamily == null)
             {
@@ -101,69 +99,69 @@ namespace StardewValley_Mod_Manager
                 {
                     BasedOn = (Style)Application.Current.Resources["BaseLabelStyle"],
                     Setters =
-            {
-                new Setter(Label.FontFamilyProperty, fontFamily)
-            }
+                    {
+                        new Setter(Label.FontFamilyProperty, fontFamily)
+                    }
                 };
 
                 Resources["BaseTextBlockStyle"] = new Style(typeof(TextBlock))
                 {
                     BasedOn = (Style)Application.Current.Resources["BaseTextBlockStyle"],
                     Setters =
-            {
-                new Setter(TextBlock.FontFamilyProperty, fontFamily)
-            }
+                    {
+                        new Setter(TextBlock.FontFamilyProperty, fontFamily)
+                    }
                 };
 
                 Resources["BaseTextBoxStyle"] = new Style(typeof(TextBox))
                 {
                     BasedOn = (Style)Application.Current.Resources["BaseTextBoxStyle"],
                     Setters =
-            {
-                new Setter(TextBox.FontFamilyProperty, fontFamily)
-            }
+                    {
+                        new Setter(TextBox.FontFamilyProperty, fontFamily)
+                    }
                 };
 
                 Resources["BaseComboBoxStyle"] = new Style(typeof(ComboBox))
                 {
                     BasedOn = (Style)Application.Current.Resources["BaseComboBoxStyle"],
                     Setters =
-            {
-                new Setter(ComboBox.FontFamilyProperty, fontFamily)
-            }
+                    {
+                        new Setter(ComboBox.FontFamilyProperty, fontFamily)
+                    }
                 };
 
                 Resources["BaseButtonStyle"] = new Style(typeof(Button))
                 {
                     BasedOn = (Style)Application.Current.Resources["BaseButtonStyle"],
                     Setters =
-            {
-                new Setter(Button.FontFamilyProperty, fontFamily)
-            }
+                    {
+                        new Setter(Button.FontFamilyProperty, fontFamily)
+                    }
                 };
 
                 Resources["BaseListViewStyle"] = new Style(typeof(ListView))
                 {
                     BasedOn = (Style)Application.Current.Resources["BaseListViewStyle"],
                     Setters =
-            {
-                new Setter(ListView.FontFamilyProperty, fontFamily)
-            }
+                    {
+                        new Setter(ListView.FontFamilyProperty, fontFamily)
+                    }
                 };
 
                 Resources["BaseListViewItemStyle"] = new Style(typeof(ListViewItem))
                 {
                     BasedOn = (Style)Application.Current.Resources["BaseListViewItemStyle"],
                     Setters =
-            {
-                new Setter(ListViewItem.FontFamilyProperty, fontFamily)
-            }
+                    {
+                        new Setter(ListViewItem.FontFamilyProperty, fontFamily)
+                    }
                 };
             }
         }
         private void Button_MouseEnter(object sender, MouseEventArgs e)
         {
-            soundPlayer.Play();
+            Cowboy.Play();
         }
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -181,7 +179,7 @@ namespace StardewValley_Mod_Manager
                 // 설정 완료 후 관리자 권한으로 프로그램 재시작
                 var processInfo = new ProcessStartInfo
                 {
-                    FileName = Process.GetCurrentProcess().MainModule.FileName,
+                    FileName = Environment.ProcessPath,
                     UseShellExecute = true,
                     Verb = "runas"  // 관리자 권한으로 실행
                 };
@@ -232,23 +230,78 @@ namespace StardewValley_Mod_Manager
         }
         private void LoadConfig()
         {
-            if (!File.Exists(ConfigManager.ConfigFilePath) || IsConfigFileEmpty())
+            try
             {
-                File.Delete(ConfigManager.ConfigFilePath);
-                HandleSettings();
-                return;
+                // config.xml 검사 및 유효하지 않은 항목 제거
+                ConfigManager.ValidateConfig();
+
+                // SMAPI 경로 설정 여부 확인 및 설정 창 표시
+                string smapiPath = ConfigManager.ReadSetting("SmapiPath");
+                if (string.IsNullOrEmpty(smapiPath))
+                {
+                    string detectedPath = DetectSmapiPath();
+                    if (!string.IsNullOrEmpty(detectedPath))
+                    {
+                        smapiExecutablePath = detectedPath;
+                        ConfigManager.WriteSetting("SmapiPath", smapiExecutablePath);
+                    }
+                    else
+                    {
+                        MessageBox.Show("SMAPI가 설치되어 있지 않거나 Stardew Valley 폴더를 찾을 수 없습니다. 수동으로 설정해 주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        HandleSettings();
+                        return;
+                    }
+                }
+                else
+                {
+                    smapiExecutablePath = smapiPath;
+                }
+
+                // SelectedFont 설정 확인 및 기본값 설정
+                string selectedFont = ConfigManager.ReadSetting("SelectedFont");
+                if (string.IsNullOrEmpty(selectedFont))
+                {
+                    selectedFont = "F_SDMisaeng"; // 기본값 설정
+                    ConfigManager.WriteSetting("SelectedFont", selectedFont);
+                }
+
+                int fontSizeIndex;
+                if (int.TryParse(ConfigManager.ReadSetting("FontSizeIndex"), out fontSizeIndex))
+                {
+                    FontSizeComboBox.SelectedIndex = fontSizeIndex;
+                }
+                else
+                {
+                    FontSizeComboBox.SelectedIndex = 0; // 기본 폰트 크기
+                }
+
+                if (selectedFont == "F_SDMisaeng")
+                {
+                    foreach (ComboBoxItem item in FontSizeComboBox.Items)
+                    {
+                        int originalValue;
+                        if (int.TryParse(item.Tag.ToString(), out originalValue))
+                        {
+                            item.Tag = (originalValue + 10).ToString();
+                            //item.Content = "기본" + (originalValue + 10); // 기본으로 시작하는 항목 수정
+                        }
+                    }
+                    AllSelectNDeSelect.FontSize = 20;
+                    LaunchedGame.FontSize = 20;
+                    FolderListView.FontSize = 20;
+                    FontSizeComboBox.FontSize = 20;
+                }
+
+                ApplyFontSize();
+                ApplyFont((FontFamily)Application.Current.Resources[selectedFont]); // 저장된 폰트 설정 적용
             }
-
-            ConfigManager.ValidateConfig(); // config.xml 검사 및 유효하지 않은 항목 제거
-
-            smapiExecutablePath = ConfigManager.ReadSetting("SmapiPath");
-            LoadFolders();
-
-            if (FolderComboBox.Items.Count > 0)
+            catch (Exception ex)
             {
-                FolderComboBox.SelectedIndex = 0;
+                // 예외를 로그 파일에 기록
+                ConfigManager.LogException(ex);
             }
         }
+
         private bool IsConfigFileEmpty()
         {
             try
@@ -286,7 +339,8 @@ namespace StardewValley_Mod_Manager
         private void DisplayInnerFolderContents(string folderName)
         {
             InnerFolderContents.Clear();
-            var parentFolderElement = ConfigManager.GetFolderElement(FolderComboBox.SelectedItem.ToString());
+
+            var parentFolderElement = ConfigManager.GetFolderElement(FolderListView.SelectedItem.ToString());
             var folderElement = parentFolderElement.Elements("Inner_Folder")
                                                    .FirstOrDefault(f => f.Attribute("name").Value == folderName);
 
@@ -297,20 +351,21 @@ namespace StardewValley_Mod_Manager
                     InnerFolderContents.Add(new FileItem
                     {
                         Name = innerFolder.Attribute("name").Value,
+                        Path = innerFolder.Attribute("path").Value, // 파일 경로 설정
                         IsChecked = false,
-                        IsFolder = true,
-                        ImageSource = new BitmapImage(new Uri("/Resources/Checkbox.png", UriKind.RelativeOrAbsolute))
+                        IsFolder = true
                     });
                 }
 
                 foreach (var file in folderElement.Elements("File"))
                 {
+                    string filePath = Path.Combine(folderElement.Attribute("path").Value, file.Attribute("name").Value);
                     InnerFolderContents.Add(new FileItem
                     {
                         Name = file.Attribute("name").Value,
+                        Path = filePath, // 파일 경로 설정
                         IsChecked = false,
-                        IsFolder = false,
-                        ImageSource = new BitmapImage(new Uri("/Resources/Checkbox.png", UriKind.RelativeOrAbsolute))
+                        IsFolder = false
                     });
                 }
             }
@@ -328,7 +383,7 @@ namespace StardewValley_Mod_Manager
             if (FolderContentsListView.SelectedItem is FileItem selectedItem && selectedItem.IsFolder)
             {
                 string selectedFolder = selectedItem.Name;
-                var parentFolderElement = ConfigManager.GetFolderElement(FolderComboBox.SelectedItem.ToString());
+                var parentFolderElement = ConfigManager.GetFolderElement(FolderListView.SelectedItem.ToString());
                 var folderElement = parentFolderElement.Elements("Inner_Folder")
                                                        .FirstOrDefault(f => f.Attribute("name").Value == selectedFolder);
 
@@ -336,6 +391,42 @@ namespace StardewValley_Mod_Manager
                 {
                     string folderPath = folderElement.Attribute("path").Value;
                     Process.Start("explorer.exe", folderPath);
+                }
+            }
+        }
+        private void InnerFolderContentsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (InnerFolderContentsListView.SelectedItem is FileItem selectedItem)
+            {
+                if (selectedItem.IsFolder)
+                {
+                    // 폴더를 여는 경우
+                    string selectedFolder = selectedItem.Name;
+                    var parentFolderElement = ConfigManager.GetFolderElement(FolderListView.SelectedItem.ToString());
+                    var folderElement = parentFolderElement.Elements("Inner_Folder")
+                                                           .FirstOrDefault(f => f.Attribute("name").Value == selectedFolder);
+
+                    if (folderElement != null)
+                    {
+                        string folderPath = folderElement.Attribute("path").Value;
+                        Process.Start("explorer.exe", folderPath);
+                    }
+                }
+                else
+                {
+                    // 파일을 여는 경우
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = selectedItem.Path, // 여기서 파일의 전체 경로를 사용합니다.
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"파일을 여는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
@@ -352,6 +443,7 @@ namespace StardewValley_Mod_Manager
         public class FileItem
         {
             public string Name { get; set; }
+            public string Path { get; set; }
             public bool IsChecked { get; set; }
             public bool IsFolder { get; set; }
             public BitmapImage ImageSource { get; set; }
@@ -372,23 +464,43 @@ namespace StardewValley_Mod_Manager
             {
                 smapiExecutablePath = settingsWindow.SmapiPath;
                 SaveConfig("SmapiPath", smapiExecutablePath);
-                ApplyFont();
+                // 설정 완료 후 선택된 폰트를 즉시 적용
+                if (!string.IsNullOrEmpty(settingsWindow.SelectedFontResourceKey))
+                {
+                    ApplyFont((FontFamily)Application.Current.Resources[settingsWindow.SelectedFontResourceKey]);
+                }
+                // 설정 완료 후 프로그램 재시작
+                var processInfo = new ProcessStartInfo
+                {
+                    FileName = Process.GetCurrentProcess().MainModule.FileName,
+                    UseShellExecute = true,
+                    Verb = "runas"  // 관리자 권한으로 실행
+                };
+                try
+                {
+                    Process.Start(processInfo);
+                }
+                catch (Exception ex2)
+                {
+                    MessageBox.Show("프로그램을 관리자 권한으로 재시작할 수 없습니다: " + ex2.Message, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                Application.Current.Shutdown();
             }
         }
         private void LoadFolders()
         {
-            FolderComboBox.Items.Clear();
+            FolderListView.Items.Clear();
             var folders = ConfigManager.GetFolders();
             foreach (var folder in folders)
             {
-                FolderComboBox.Items.Add(folder);
+                FolderListView.Items.Add(folder);
             }
         }
-        private void FolderComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void FolderListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (FolderComboBox.SelectedItem != null)
+            if (FolderListView.SelectedItem != null)
             {
-                string selectedFolder = FolderComboBox.SelectedItem.ToString();
+                string selectedFolder = FolderListView.SelectedItem.ToString();
                 DisplayFolderContents(selectedFolder);
                 DisplayInnerFolderContents(selectedFolder);
                 allSelected = true;
@@ -412,6 +524,60 @@ namespace StardewValley_Mod_Manager
                 LoadFolders();
             }
         }
+        private void DeleteFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (FolderListView.SelectedItem == null)
+            {
+                MessageBox.Show("삭제할 폴더를 선택해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string selectedFolder = FolderListView.SelectedItem.ToString();
+
+            // 사용자 확인 대화 상자 표시
+            MessageBoxResult result = MessageBox.Show($"정말로 '{selectedFolder}' 리스트를 삭제하시겠습니까? 실제 파일은 지워지지 않습니다.", "폴더 삭제 확인", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            // 사용자가 'Yes'를 클릭한 경우에만 삭제 작업 수행
+            if (result == MessageBoxResult.Yes)
+            {
+                var folderElement = ConfigManager.GetFolderElement(selectedFolder);
+
+                if (folderElement != null)
+                {
+                    // config.xml에서 폴더 제거
+                    var doc = XDocument.Load(ConfigManager.ConfigFilePath);
+                    var foldersElement = doc.Root.Element("Folders");
+                    if (foldersElement != null)
+                    {
+                        var folderToRemove = foldersElement.Elements("Folder")
+                                                           .FirstOrDefault(f => f.Attribute("name").Value == selectedFolder);
+                        if (folderToRemove != null)
+                        {
+                            folderToRemove.Remove();
+                            doc.Save(ConfigManager.ConfigFilePath);
+                        }
+                    }
+
+                    // ListView에서 폴더 제거
+                    FolderListView.Items.Remove(selectedFolder);
+
+                    // FolderContentsListView와 InnerFolderContentsListView 초기화
+                    FolderContents.Clear();
+                    InnerFolderContents.Clear();
+                    FolderContentsListView.Items.Refresh();
+                    InnerFolderContentsListView.Items.Refresh();
+                }
+                else
+                {
+                    MessageBox.Show("선택된 폴더를 찾을 수 없습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        /// <summary>
+        /// 사용하지는 않지만 원래는 모드 실행버튼이였음. 혹시 나중에 또 용도가있을까 싶어 살려줌
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void RunWithModsButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -557,13 +723,13 @@ namespace StardewValley_Mod_Manager
 
             Directory.CreateDirectory(tempPath);
 
-            if (FolderComboBox.SelectedItem == null)
+            if (FolderListView.SelectedItem == null)
             {
                 MessageBox.Show("폴더를 선택해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            string selectedFolder = FolderComboBox.SelectedItem.ToString();
+            string selectedFolder = FolderListView.SelectedItem.ToString();
             var folderElement = ConfigManager.GetFolderElement(selectedFolder);
             if (folderElement == null)
             {
@@ -688,6 +854,7 @@ namespace StardewValley_Mod_Manager
             MainGrid.Effect = null;
         }
 
+        #region 심볼릭 링크 플래그와 Enum
         [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
         static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, SymbolicLink dwFlags);
 
@@ -696,6 +863,7 @@ namespace StardewValley_Mod_Manager
             File = 0,
             Directory = 1
         }
+        #endregion
 
     }
 }

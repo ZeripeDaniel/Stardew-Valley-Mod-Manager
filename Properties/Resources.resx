@@ -121,6 +121,12 @@
   <data name="AllCheckBt" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\AllCheckBt.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="bigDeSelect" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\bigDeSelect.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="bigSelect" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\bigSelect.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Checkbox" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Checkbox.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -133,6 +139,9 @@
   <data name="Cowboy" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Cowboy.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Cowboy_Footstep" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Cowboy_Footstep.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="CreditBt" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CreditBt.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -144,6 +153,12 @@
   </data>
   <data name="ico" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ico.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="junimo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\junimo.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Leaf" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Leaf.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="MainForm" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\MainForm.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

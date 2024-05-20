@@ -42,6 +42,7 @@
             <ComboBoxItem Content="Noto Sans SC Thin" Tag="F_NSSC"/>
             <ComboBoxItem Content="Noto Sans Thin" Tag="F_NSV"/>
         </ComboBox>
+        
 
         <Button Content="확인" HorizontalAlignment="Center" Margin="-100,0,0,5" VerticalAlignment="Bottom" Width="75" Click="OkButton_Click"/>
         <Button Content="취소" HorizontalAlignment="Center" Margin="100,0,0,5" VerticalAlignment="Bottom" Width="75" Click="CancelButton_Click"/>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 
 
@@ -34,9 +35,19 @@ namespace StardewValley_Mod_Manager
                 var element = doc.Root.Element("Settings")?.Element(key);
                 return element?.Value;
             }
-            catch
+            catch (Exception ex)
             {
+                // 예외를 로그 파일에 기록
+                LogException(ex);
                 return null;
+            }
+        }
+        public static void LogException(Exception ex)
+        {
+            if (ex != null)
+            {
+                string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error.log");
+                File.AppendAllText(logPath, $"{DateTime.Now}: {ex.ToString()}{Environment.NewLine}");
             }
         }
 
@@ -147,7 +158,6 @@ namespace StardewValley_Mod_Manager
             }
             return null;
         }
-
         public static void ValidateConfig()
         {
             EnsureConfigFilePath();
@@ -160,7 +170,19 @@ namespace StardewValley_Mod_Manager
             }
             else
             {
-                doc = XDocument.Load(ConfigFilePath);
+                try
+                {
+                    doc = XDocument.Load(ConfigFilePath);
+                    if (doc.Root == null)
+                    {
+                        throw new XmlException("Root element is missing.");
+                    }
+                }
+                catch (XmlException)
+                {
+                    doc = new XDocument(new XElement("Configuration", new XElement("Folders"), new XElement("Settings")));
+                    doc.Save(ConfigFilePath);
+                }
             }
 
             var folders = doc.Root.Element("Folders");
@@ -177,6 +199,7 @@ namespace StardewValley_Mod_Manager
 
             doc.Save(ConfigFilePath);
         }
+
 
         private static void ValidateInnerFolders(XElement parentElement)
         {

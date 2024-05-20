@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows;
+using System.IO;
 
 namespace StardewValley_Mod_Manager
 {
@@ -14,6 +15,9 @@ namespace StardewValley_Mod_Manager
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
+
             base.OnStartup(e);
 
             string fontSetting = ConfigManager.ReadSetting("SelectedFont");
@@ -25,10 +29,30 @@ namespace StardewValley_Mod_Manager
                     ApplyFont(fontFamily);
                 }
             }
-
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
+            //MainWindow mainWindow = new MainWindow();
+            //mainWindow.Show();
         }
+        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            LogException(e.Exception);
+            MessageBox.Show("Unhandled exception occurred. Check the log for details.");
+            e.Handled = true;
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            LogException(e.ExceptionObject as Exception);
+        }
+
+        private void LogException(Exception ex)
+        {
+            if (ex != null)
+            {
+                string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error.log");
+                File.AppendAllText(logPath, $"{DateTime.Now}: {ex.ToString()}{Environment.NewLine}");
+            }
+        }
+
 
         public static void ApplyFont(FontFamily fontFamily)
         {
