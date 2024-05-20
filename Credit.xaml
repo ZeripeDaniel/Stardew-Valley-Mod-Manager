@@ -31,30 +31,36 @@
             </Style.Triggers>
         </Style>
         
-        <BitmapImage x:Key="Img_Modlist" UriSource="/Resources/CreditWindow.png" />
+        <BitmapImage x:Key="Img_CreditWindow" UriSource="/Resources/CreditWindow.png" />
         <BitmapImage x:Key="Img_CloseBt" UriSource="/Resources/CloseBt.png" />
     </Window.Resources>
     <Grid  Width="400" Height="600">
-        <Image Source="{StaticResource Img_Modlist}" Width="400" Margin="0,-32,0,-34" />
+        <Image Source="{StaticResource Img_CreditWindow}" Width="400" Margin="0,-32,0,-34" />
 
         <TextBlock Text="Credit" 
                    VerticalAlignment="Top" 
                    HorizontalAlignment="Center" 
                    FontSize="35"
-                    Margin="0,42,0,0"/>
+                   Margin="0,42,0,0"
+                   Style="{StaticResource BaseTextBlockStyle}"
+                   FontWeight="Bold"/>
         <TextBlock Text="Art&amp;Design J_Crick" 
                    VerticalAlignment="Top" 
                    HorizontalAlignment="Center" 
                    FontSize="35"
                    MouseLeftButtonDown="CrickText_MouseLeftButtonDown"
-                    Margin="0,100,0,0"/>
+                   Margin="0,100,0,0"
+                   Style="{StaticResource BaseTextBlockStyle}"
+                   FontWeight="Bold"/>
         
         <TextBlock Text="Programing ZZ" 
                    VerticalAlignment="Top" 
                    HorizontalAlignment="Center" 
                    FontSize="35"
                    MouseLeftButtonDown="ZZText_MouseLeftButtonDown"
-                   Margin="0,170,0,0"/>
+                   Margin="0,170,0,0"
+                   Style="{StaticResource BaseTextBlockStyle}"
+                   FontWeight="Bold"/>
         
         <Button Style="{StaticResource ImageButtonStyle}"
                 Click="CloseButton_Click"
@@ -64,7 +70,7 @@
                 Background="Transparent"
                 BorderBrush="Transparent">
             <Button.Content>
-                <Image Source="{StaticResource Img_CloseBt}" VerticalAlignment="Bottom" />
+                <Image Source="{StaticResource Img_CloseBt}" VerticalAlignment="Bottom"  />
             </Button.Content>
         </Button>
     </Grid>

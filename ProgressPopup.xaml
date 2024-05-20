@@ -8,6 +8,6 @@
         Title="ProgressPopup" Height="150" Width="400" WindowStartupLocation="CenterScreen">
     <Grid>
         <ProgressBar Name="ProgressBar" Margin="10" Height="30" VerticalAlignment="Top"/>
-        <Button Content="취소" Name="CancelButton" Width="80" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="CancelButton_Click"/>
+        <Button Content="취소우" Name="CancelButton" Width="80" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="CancelButton_Click"/>
     </Grid>
 </Window>

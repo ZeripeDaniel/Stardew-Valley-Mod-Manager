@@ -62,22 +62,20 @@
         </DataTemplate>
 
         <!-- 이미지 버튼 스타일 정의 -->
-        <Style TargetType="ListView">
+        <Style TargetType="ListView" BasedOn="{StaticResource BaseListViewStyle}">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="FontFamily" Value="Sandoll 미생"/>
         </Style>
 
-        <Style TargetType="GridViewColumnHeader">
+        <Style TargetType="GridViewColumnHeader" >
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="FontFamily" Value="Sandoll 미생"/>
         </Style>
 
-        <Style TargetType="ListViewItem">
+        <Style TargetType="ListViewItem" BasedOn="{StaticResource BaseListViewItemStyle}">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="FontFamily" Value="Sandoll 미생"/>
             <Setter Property="Foreground" Value="Black"/>
         </Style>
 
+        
     </Window.Resources>
     <Grid>
         <Grid Name="MainGrid" Width="1200" Margin="0,140,0,0">
@@ -85,15 +83,18 @@
         <Image Source="/Resources/TestMainWindow.png"/>
 
 
-        <ComboBox Name="FolderComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Margin="112,104,0,0" SelectionChanged="FolderComboBox_SelectionChanged"/>
+        <ComboBox Name="FolderComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Margin="112,104,0,0" SelectionChanged="FolderComboBox_SelectionChanged" Style="{StaticResource BaseComboBoxStyle}"/>
 
-        <ComboBox Name="FontSizeComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="265,44,0,0" SelectionChanged="FontSizeComboBox_SelectionChanged"  Height="20">
+        <ComboBox Name="FontSizeComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="265,44,0,0" SelectionChanged="FontSizeComboBox_SelectionChanged"  Height="20" Style="{StaticResource BaseComboBoxStyle}">
             <ComboBoxItem Content="기본" Tag="12"/>
             <ComboBoxItem Content="1" Tag="14"/>     
             <ComboBoxItem Content="2" Tag="16"/>
             <ComboBoxItem Content="3" Tag="18"/>
             <ComboBoxItem Content="4" Tag="20"/>
-        </ComboBox>
+            <ComboBoxItem Content="5" Tag="22"/>
+            <ComboBoxItem Content="6" Tag="24"/>
+            <ComboBoxItem Content="7" Tag="26"/>
+            </ComboBox>
 
         <Button Style="{StaticResource ImageButtonStyle}"
                 MouseEnter="Button_MouseEnter"
@@ -196,7 +197,7 @@
         </Button>
 
         <!-- 폴더 내용 표시 ListView -->
-        <ListView Name="FolderContentsListView" 
+        <ListView Name="FolderContentsListView"
                   MouseLeftButtonUp="FolderContentsListView_Click"
                   MouseDoubleClick="FolderContentsListView_MouseDoubleClick"
                   Margin="286,86,190,180" MinWidth="725" MinHeight="315" MaxWidth="725" MaxHeight="315">
@@ -208,7 +209,10 @@
             </ListView.View>
         </ListView>
 
-        <ListView Name="InnerFolderContentsListView" Margin="286,400,190,61" UseLayoutRounding="True" MinWidth="725" MinHeight="120" MaxWidth="725" MaxHeight="120">
+        <ListView Name="InnerFolderContentsListView"
+                  Margin="286,400,190,61"
+                  UseLayoutRounding="True"
+                  MinWidth="725" MinHeight="120" MaxWidth="725" MaxHeight="120">
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
                         <GridViewColumn Header="Name" Width="400" DisplayMemberBinding="{Binding Name}"/>
@@ -218,14 +222,19 @@
 
         <Label Content="전체 선택/해제" 
                MouseDown="ToggleSelectAll_Click"
-               HorizontalAlignment="Left" Margin="282,16,0,0" VerticalAlignment="Top" Width="143" Height="28"  FontSize="12" Foreground="#d15054" FontWeight="Bold"/>
+               HorizontalAlignment="Left"
+               Margin="282,16,0,0"
+               VerticalAlignment="Top"
+               Width="143" Height="28"
+               Style="{StaticResource BaseLabelStyle}"
+               FontSize="12" Foreground="#d15054" FontWeight="Bold"/>
 
         </Grid>
         <Grid Name="OverlayGrid" Visibility="Collapsed" Width="1200" Height="570" Margin="0,150,0,0">
             <Grid.Background>
                 <SolidColorBrush Color="#80000000" />
             </Grid.Background>
-            <TextBlock Text="게임이 실행중입니다." Foreground="White"  FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="게임이 실행중입니다." Foreground="White"  FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BaseTextBlockStyle}"/>
         </Grid>
     </Grid>
     

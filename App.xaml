@@ -10,28 +10,28 @@
         <FontFamily x:Key="F_NSK">/Fonts/#Noto Sans KR Thin</FontFamily>
         <FontFamily x:Key="F_NSSC">/Fonts/#Noto Sans SC Thin</FontFamily>
         <FontFamily x:Key="F_NSV">/Fonts/#Noto Sans Thin</FontFamily>
-
-        <!-- 기본 폰트 스타일 정의 -->
-        <Style TargetType="Label" x:Key="DefaultLabelStyle">
+        
+        <Style x:Key="BaseLabelStyle" TargetType="Label">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
-        <Style TargetType="TextBlock" x:Key="DefaultTextBlockStyle">
+        <Style x:Key="BaseTextBlockStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
-        <Style TargetType="TextBox" x:Key="DefaultTextBoxStyle">
+        <Style x:Key="BaseTextBoxStyle" TargetType="TextBox">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
-        <Style TargetType="ComboBox" x:Key="DefaultComboBoxStyle">
+        <Style x:Key="BaseComboBoxStyle" TargetType="ComboBox">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
-        <Style TargetType="Button" x:Key="DefaultButtonStyle">
+        <Style x:Key="BaseButtonStyle" TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
-        <Style TargetType="ListView" x:Key="DefaultListViewStyle">
+        <Style x:Key="BaseListViewStyle" TargetType="ListView">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
-        <Style TargetType="ListViewItem" x:Key="DefaultListViewItemStyle">
+        <Style x:Key="BaseListViewItemStyle" TargetType="ListViewItem">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
     </Application.Resources>
+    
 </Application>

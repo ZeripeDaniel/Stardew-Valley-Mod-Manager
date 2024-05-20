@@ -6,19 +6,44 @@
         xmlns:local="clr-namespace:StardewValley_Mod_Manager"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="SettingsWindow" Height="200" Width="400">
+        Title="SettingsWindow" Height="200" Width="550">
+
+    <Window.Resources>
+        <Style TargetType="Label" BasedOn="{StaticResource BaseLabelStyle}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource BaseTextBoxStyle}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+            <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+    </Window.Resources>
+    
     <Grid>
-        <ComboBox Name="FontComboBox" Width="200" Height="30" VerticalAlignment="Top" Margin="100,85,100,0">
-            <ComboBoxItem Content="Sandoll 미생" Tag="{StaticResource F_SDMisaeng}" />
-            <ComboBoxItem Content="Noto Sans JP Thin" Tag="{StaticResource F_NSJ}" />
-            <ComboBoxItem Content="Noto Sans KR Thin" Tag="{StaticResource F_NSK}" />
-            <ComboBoxItem Content="Noto Sans SC Thin" Tag="{StaticResource F_NSSC}" />
-            <ComboBoxItem Content="Noto Sans Thin" Tag="{StaticResource F_NSV}" />
+        <!-- 기존 UI 요소들 -->
+
+        <Label Content="스타듀밸리 경로 :" HorizontalAlignment="Left" Margin="0,43,0,0" VerticalAlignment="Top" Height="37" Width="122" FontWeight="Bold" FontSize="17"/>
+        <TextBox Name="SmapiPathTextBox" HorizontalAlignment="Left" Margin="130,43,0,0" VerticalAlignment="Top" Width="300"/>
+        <Button Content="찾아보기" HorizontalAlignment="Left" Margin="450,43,0,0" VerticalAlignment="Top" Width="75" Click="SmapiBrowseButton_Click"/>
+
+        <!-- 폰트 설정 UI 요소들 -->
+        <Label Content="폰트 선택 :" HorizontalAlignment="Left" Margin="0,100,0,0" VerticalAlignment="Top" Height="37" Width="122" FontWeight="Bold" FontSize="17"/>
+        <ComboBox Name="FontComboBox" HorizontalAlignment="Left" Margin="130,100,0,0" VerticalAlignment="Top" Width="300">
+            <ComboBoxItem Content="Sandoll 미생" Tag="F_SDMisaeng"/>
+            <ComboBoxItem Content="Noto Sans JP Thin" Tag="F_NSJ"/>
+            <ComboBoxItem Content="Noto Sans KR Thin" Tag="F_NSK"/>
+            <ComboBoxItem Content="Noto Sans SC Thin" Tag="F_NSSC"/>
+            <ComboBoxItem Content="Noto Sans Thin" Tag="F_NSV"/>
         </ComboBox>
-        <TextBox Name="SmapiPathTextBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="204" Margin="106,52,0,0"/>
-        <Button Name="SmapiBrowseButton" Content="Browse" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="0,52,10,0" Click="SmapiBrowseButton_Click"/>
-        <Button Name="OkButton" Content="OK" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="75" Margin="10" Click="OkButton_Click"/>
-        <Button Name="CancelButton" Content="Cancel" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,0,10,10" Click="CancelButton_Click"/>
-        <Label Content="스타듀밸리경로 :" HorizontalAlignment="Left" Margin="0,43,0,0" VerticalAlignment="Top" Height="37" Width="122" FontWeight="Bold" FontSize="17" />
+
+        <Button Content="확인" HorizontalAlignment="Center" Margin="-100,0,0,5" VerticalAlignment="Bottom" Width="75" Click="OkButton_Click"/>
+        <Button Content="취소" HorizontalAlignment="Center" Margin="100,0,0,5" VerticalAlignment="Bottom" Width="75" Click="CancelButton_Click"/>
     </Grid>
 </Window>

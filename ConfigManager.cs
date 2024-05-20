@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
+
 namespace StardewValley_Mod_Manager
 {
     public static class ConfigManager
@@ -12,6 +13,15 @@ namespace StardewValley_Mod_Manager
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "StardewValleyModManager",
             "config.xml");
+
+        private static void EnsureConfigFilePath()
+        {
+            string directory = Path.GetDirectoryName(ConfigFilePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+        }
 
         public static string ReadSetting(string key)
         {
@@ -37,7 +47,6 @@ namespace StardewValley_Mod_Manager
 
             if (!File.Exists(ConfigFilePath) || IsConfigFileEmpty())
             {
-                // config.xml 파일이 없거나 비어 있으면 기본 구조 생성
                 doc = new XDocument(new XElement("Configuration", new XElement("Folders"), new XElement("Settings")));
                 doc.Save(ConfigFilePath);
             }
@@ -63,6 +72,10 @@ namespace StardewValley_Mod_Manager
             }
             doc.Save(ConfigFilePath);
         }
+        public static void WriteSetting(string key, int value)
+        {
+            WriteSetting(key, value.ToString());
+        }
 
         private static bool IsConfigFileEmpty()
         {
@@ -76,6 +89,7 @@ namespace StardewValley_Mod_Manager
                 return true;
             }
         }
+
         public static void SaveFolder(string folderName, string folderPath)
         {
             EnsureConfigFilePath();
@@ -113,6 +127,7 @@ namespace StardewValley_Mod_Manager
                 parentElement.Add(fileElement);
             }
         }
+
         public static List<string> GetFolders()
         {
             if (File.Exists(ConfigFilePath))
@@ -132,6 +147,7 @@ namespace StardewValley_Mod_Manager
             }
             return null;
         }
+
         public static void ValidateConfig()
         {
             EnsureConfigFilePath();
@@ -139,7 +155,6 @@ namespace StardewValley_Mod_Manager
 
             if (!File.Exists(ConfigFilePath))
             {
-                // config.xml 파일이 없으면 기본 구조 생성
                 doc = new XDocument(new XElement("Configuration", new XElement("Folders"), new XElement("Settings")));
                 doc.Save(ConfigFilePath);
             }
@@ -149,7 +164,6 @@ namespace StardewValley_Mod_Manager
             }
 
             var folders = doc.Root.Element("Folders");
-
             if (folders == null)
             {
                 folders = new XElement("Folders");
@@ -163,6 +177,7 @@ namespace StardewValley_Mod_Manager
 
             doc.Save(ConfigFilePath);
         }
+
         private static void ValidateInnerFolders(XElement parentElement)
         {
             foreach (var innerFolder in parentElement.Elements("Inner_Folder").ToList())
@@ -189,14 +204,6 @@ namespace StardewValley_Mod_Manager
                         }
                     }
                 }
-            }
-        }
-        private static void EnsureConfigFilePath()
-        {
-            string directory = Path.GetDirectoryName(ConfigFilePath);
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
             }
         }
     }

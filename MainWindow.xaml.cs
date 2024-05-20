@@ -65,7 +65,15 @@ namespace StardewValley_Mod_Manager
             }
 
             soundPlayer = new SoundPlayer(Properties.Resources.Cowboy);
-            FontSizeComboBox.SelectedIndex = 0;
+            int fontSizeIndex;
+            if (int.TryParse(ConfigManager.ReadSetting("FontSizeIndex"), out fontSizeIndex))
+            {
+                FontSizeComboBox.SelectedIndex = fontSizeIndex;
+            }
+            else
+            {
+                FontSizeComboBox.SelectedIndex = 0; // 기본 폰트 크기
+            }
             ApplyFontSize();
             ApplyFont(); // 폰트 설정 적용
 
@@ -76,69 +84,76 @@ namespace StardewValley_Mod_Manager
             }
             FolderContentsListView.Items.Refresh();
         }
-        private void ApplyFont(FontFamily fontFamily = null)
+        public void ApplyFont(FontFamily fontFamily = null)
         {
             if (fontFamily == null)
             {
                 string fontSetting = ConfigManager.ReadSetting("SelectedFont");
-                if (!string.IsNullOrEmpty(fontSetting))
+                if (!string.IsNullOrEmpty(fontSetting) && Application.Current.Resources.Contains(fontSetting))
                 {
-                    fontFamily = new FontFamily(fontSetting);
+                    fontFamily = (FontFamily)Application.Current.Resources[fontSetting];
                 }
             }
 
             if (fontFamily != null)
             {
-                Resources["DefaultLabelStyle"] = new Style(typeof(Label))
+                Resources["BaseLabelStyle"] = new Style(typeof(Label))
                 {
+                    BasedOn = (Style)Application.Current.Resources["BaseLabelStyle"],
                     Setters =
             {
                 new Setter(Label.FontFamilyProperty, fontFamily)
             }
                 };
 
-                Resources["DefaultTextBlockStyle"] = new Style(typeof(TextBlock))
+                Resources["BaseTextBlockStyle"] = new Style(typeof(TextBlock))
                 {
+                    BasedOn = (Style)Application.Current.Resources["BaseTextBlockStyle"],
                     Setters =
             {
                 new Setter(TextBlock.FontFamilyProperty, fontFamily)
             }
                 };
 
-                Resources["DefaultTextBoxStyle"] = new Style(typeof(TextBox))
+                Resources["BaseTextBoxStyle"] = new Style(typeof(TextBox))
                 {
+                    BasedOn = (Style)Application.Current.Resources["BaseTextBoxStyle"],
                     Setters =
             {
                 new Setter(TextBox.FontFamilyProperty, fontFamily)
             }
                 };
 
-                Resources["DefaultComboBoxStyle"] = new Style(typeof(ComboBox))
+                Resources["BaseComboBoxStyle"] = new Style(typeof(ComboBox))
                 {
+                    BasedOn = (Style)Application.Current.Resources["BaseComboBoxStyle"],
                     Setters =
             {
                 new Setter(ComboBox.FontFamilyProperty, fontFamily)
             }
                 };
 
-                Resources["DefaultButtonStyle"] = new Style(typeof(Button))
+                Resources["BaseButtonStyle"] = new Style(typeof(Button))
                 {
+                    BasedOn = (Style)Application.Current.Resources["BaseButtonStyle"],
                     Setters =
             {
                 new Setter(Button.FontFamilyProperty, fontFamily)
             }
                 };
 
-                Resources["DefaultListViewStyle"] = new Style(typeof(ListView))
+                Resources["BaseListViewStyle"] = new Style(typeof(ListView))
                 {
+                    BasedOn = (Style)Application.Current.Resources["BaseListViewStyle"],
                     Setters =
             {
                 new Setter(ListView.FontFamilyProperty, fontFamily)
             }
                 };
 
-                Resources["DefaultListViewItemStyle"] = new Style(typeof(ListViewItem))
+                Resources["BaseListViewItemStyle"] = new Style(typeof(ListViewItem))
                 {
+                    BasedOn = (Style)Application.Current.Resources["BaseListViewItemStyle"],
                     Setters =
             {
                 new Setter(ListViewItem.FontFamilyProperty, fontFamily)
@@ -146,12 +161,10 @@ namespace StardewValley_Mod_Manager
                 };
             }
         }
-
         private void Button_MouseEnter(object sender, MouseEventArgs e)
         {
             soundPlayer.Play();
         }
-
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -180,6 +193,13 @@ namespace StardewValley_Mod_Manager
                 {
                     MessageBox.Show("프로그램을 관리자 권한으로 재시작할 수 없습니다: " + ex2.Message, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                // 설정 완료 후 선택된 폰트를 즉시 적용
+                if (!string.IsNullOrEmpty(settingsWindow.SelectedFontResourceKey))
+                {
+                    ApplyFont((FontFamily)Application.Current.Resources[settingsWindow.SelectedFontResourceKey]);
+                }
+
                 Application.Current.Shutdown();
             }
             else
@@ -229,27 +249,6 @@ namespace StardewValley_Mod_Manager
                 FolderComboBox.SelectedIndex = 0;
             }
         }
-
-
-        //private void LoadConfig()
-        //{
-        //    if (!File.Exists(ConfigManager.ConfigFilePath) || IsConfigFileEmpty())
-        //    {
-        //        File.Delete(ConfigManager.ConfigFilePath);
-        //        HandleSettings();
-        //        return;
-        //    }
-
-        //    selectedFolderPath = ConfigManager.ReadSetting("LinkPath");
-        //    smapiExecutablePath = ConfigManager.ReadSetting("SmapiPath");
-        //    LoadFolders();
-
-        //    if (FolderComboBox.Items.Count > 0)
-        //    {
-        //        FolderComboBox.SelectedIndex = 0;
-        //    }
-        //}
-
         private bool IsConfigFileEmpty()
         {
             try
@@ -262,12 +261,10 @@ namespace StardewValley_Mod_Manager
                 return true;
             }
         }
-
         private void SaveConfig(string key, string value)
         {
             ConfigManager.WriteSetting(key, value);
         }
-
         private void DisplayFolderContents(string folderName)
         {
             FolderContents.Clear();
@@ -326,7 +323,6 @@ namespace StardewValley_Mod_Manager
                 DisplayInnerFolderContents(selectedFolder);
             }
         }
-
         private void FolderContentsListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (FolderContentsListView.SelectedItem is FileItem selectedItem && selectedItem.IsFolder)
@@ -353,7 +349,6 @@ namespace StardewValley_Mod_Manager
                 InnerFolderContentsListView.Items.Refresh();
             }
         }
-
         public class FileItem
         {
             public string Name { get; set; }
@@ -361,19 +356,15 @@ namespace StardewValley_Mod_Manager
             public bool IsFolder { get; set; }
             public BitmapImage ImageSource { get; set; }
         }
-
-
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
         }
-
         private void OpenPopupButton_Click(object sender, RoutedEventArgs e)
         {
             Credit popup = new Credit();
             popup.ShowDialog();
         }
-
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             var settingsWindow = new SettingsWindow();
@@ -381,9 +372,9 @@ namespace StardewValley_Mod_Manager
             {
                 smapiExecutablePath = settingsWindow.SmapiPath;
                 SaveConfig("SmapiPath", smapiExecutablePath);
+                ApplyFont();
             }
         }
-
         private void LoadFolders()
         {
             FolderComboBox.Items.Clear();
@@ -393,8 +384,6 @@ namespace StardewValley_Mod_Manager
                 FolderComboBox.Items.Add(folder);
             }
         }
-
-
         private void FolderComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (FolderComboBox.SelectedItem != null)
@@ -411,8 +400,6 @@ namespace StardewValley_Mod_Manager
                 FolderContentsListView.Items.Refresh();
             }
         }
-
-
         private void LoadFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -425,7 +412,6 @@ namespace StardewValley_Mod_Manager
                 LoadFolders();
             }
         }
-
         private async void RunWithModsButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -494,7 +480,6 @@ namespace StardewValley_Mod_Manager
                 MessageBox.Show($"SMAPI 실행 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private async void RunNoneModsButton_Click(object sender, RoutedEventArgs e)
         {
             string stardewExecutablePath = Path.Combine(Path.GetDirectoryName(smapiExecutablePath), "Stardew Valley.exe");
@@ -527,10 +512,10 @@ namespace StardewValley_Mod_Manager
                 MessageBox.Show($"스타듀밸리 실행 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private void FontSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplyFontSize();
+            ConfigManager.WriteSetting("FontSizeIndex", FontSizeComboBox.SelectedIndex);
         }
         private void ApplyFontSize()
         {
@@ -543,7 +528,6 @@ namespace StardewValley_Mod_Manager
                 }
             }
         }
-
         private async void CopyAndLinkButton_Click(object sender, RoutedEventArgs e)
         {
             await CopyAndLinkAsync();
@@ -646,113 +630,9 @@ namespace StardewValley_Mod_Manager
                 else
                 {
                     RunMods();
-                    //MessageBox.Show("Mods 폴더가 성공적으로 링크되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
-
-        //private async Task CopyAndLinkAsync()
-        //{
-        //    if (string.IsNullOrEmpty(smapiExecutablePath))
-        //    {
-        //        MessageBox.Show("SMAPI 경로가 설정되지 않았습니다. 설정에서 경로를 지정해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        return;
-        //    }
-
-        //    string smapiDirectory = Path.GetDirectoryName(smapiExecutablePath);
-
-        //    if (string.IsNullOrEmpty(smapiDirectory) || !Directory.Exists(smapiDirectory))
-        //    {
-        //        MessageBox.Show("SMAPI 경로가 올바르지 않습니다. 설정에서 경로를 확인해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        return;
-        //    }
-
-        //    string basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValleyModManager");
-        //    string tempPath = Path.Combine(basePath, "Modtemp");
-        //    if (Directory.Exists(tempPath))
-        //    {
-        //        Directory.Delete(tempPath, true);
-        //    }
-
-        //    Directory.CreateDirectory(tempPath);
-
-        //    if (FolderComboBox.SelectedItem == null)
-        //    {
-        //        MessageBox.Show("폴더를 선택해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        return;
-        //    }
-
-        //    string selectedFolder = FolderComboBox.SelectedItem.ToString();
-        //    var folderElement = ConfigManager.GetFolderElement(selectedFolder);
-        //    if (folderElement == null)
-        //    {
-        //        MessageBox.Show("선택된 폴더를 찾을 수 없습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        return;
-        //    }
-
-        //    var items = FolderContents.Where(f => f.IsChecked).ToList(); // 체크된 항목만 선택
-        //    int totalItems = items.Count;
-
-        //    // 프로그래스바 팝업 창 생성
-        //    var progressPopup = new ProgressPopup();
-        //    progressPopup.ProgressBar.Maximum = totalItems;
-        //    progressPopup.Show();
-
-        //    int itemIndex = 0;
-        //    foreach (var item in items)
-        //    {
-        //        if (progressPopup.IsCancelled)
-        //        {
-        //            MessageBox.Show("작업이 취소되었습니다.", "취소됨", MessageBoxButton.OK, MessageBoxImage.Information);
-        //            break;
-        //        }
-
-        //        // 'config.xml'에서 'Inner_Folder'의 'name'을 사용하여 경로를 찾기
-        //        var innerFolderElement = folderElement.Elements("Inner_Folder")
-        //                                              .FirstOrDefault(x => (string)x.Attribute("name") == item.Name);
-        //        if (innerFolderElement == null)
-        //        {
-        //            MessageBox.Show($"선택된 Inner_Folder를 찾을 수 없습니다: {item.Name}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            continue;
-        //        }
-
-        //        string sourcePath = (string)innerFolderElement.Attribute("path");
-        //        string destinationPath = Path.Combine(tempPath, item.Name);
-
-        //        if (!Directory.Exists(sourcePath))
-        //        {
-        //            MessageBox.Show($"소스 경로를 찾을 수 없습니다: {sourcePath}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            continue;
-        //        }
-
-        //        await Task.Run(() => DirectoryCopy(sourcePath, destinationPath, true));
-
-        //        itemIndex++;
-        //        progressPopup.UpdateProgress(itemIndex, totalItems);
-        //    }
-
-        //    progressPopup.Close();
-
-        //    if (!progressPopup.IsCancelled)
-        //    {
-        //        string modsPath = Path.Combine(smapiDirectory, "Mods");
-        //        if (Directory.Exists(modsPath))
-        //        {
-        //            Directory.Delete(modsPath, true);
-        //        }
-
-        //        bool success = CreateSymbolicLink(modsPath, tempPath, SymbolicLink.Directory);
-        //        if (!success)
-        //        {
-        //            MessageBox.Show("심볼릭 링크 생성에 실패했습니다. 관리자 권한이 필요할 수 있습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        else
-        //        {
-        //            RunMods();
-        //            //MessageBox.Show("Mods 폴더가 성공적으로 링크되었습니다.", "완료", MessageBoxButton.OK, MessageBoxImage.Information);
-        //        }
-        //    }
-        //}
         private void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
@@ -802,7 +682,6 @@ namespace StardewValley_Mod_Manager
             OverlayGrid.Visibility = Visibility.Visible;
             MainGrid.Effect = new BlurEffect { Radius = 10 };
         }
-
         private void HideOverlay()
         {
             OverlayGrid.Visibility = Visibility.Collapsed;
