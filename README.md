@@ -1,4 +1,4 @@
-#KR
+# KR
 
 # StarDewValley Mod Manager V.0.0.1 pre
 스타듀밸리 게임의 모드를 관리할 수 있는 프로그램입니다.
@@ -12,8 +12,8 @@
 - 기능 구현
   
 ## 🧑‍🤝‍🧑 팀 소개
-- **변현섭** : Programing
-- **강민교** : Art & Design UX&UI
+- **ZZ** : Programing
+- **Crick** : Art & Design UX&UI
 
 ## 💻 개발환경
 - **Version** : Windows 10
@@ -38,7 +38,7 @@
 - 프로그램 상호간 상태, 요청 파라메터 전달
     - 개발 예정.
 
-#EN
+# EN
 
 # StarDewValley Mod Manager V.0.0.1 pre
 This is a program that allows you to manage mods for the Stardew Valley game.
