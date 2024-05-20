@@ -31,6 +31,21 @@ namespace StardewValley_Mod_Manager
         public MainWindow()
         {
             InitializeComponent();
+            // SMAPI 경로 설정 여부 확인 및 설정 창 표시
+            if (string.IsNullOrEmpty(ConfigManager.ReadSetting("SmapiPath")))
+            {
+                string detectedPath = DetectSmapiPath();
+                if (!string.IsNullOrEmpty(detectedPath))
+                {
+                    smapiExecutablePath = detectedPath;
+                    SaveConfig("SmapiPath", smapiExecutablePath);
+                }
+                else
+                {
+                    MessageBox.Show("SMAPi가 설치되어있지 않거나 StardewValley 폴더를 찾을 수 없습니다 수동으로 설정 해 주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    HandleSettings();
+                }
+            }
             FolderContents = new ObservableCollection<FileItem>();
             InnerFolderContents = new ObservableCollection<FileItem>();
             FolderContentsListView.ItemsSource = FolderContents;
@@ -100,6 +115,29 @@ namespace StardewValley_Mod_Manager
             {
                 Application.Current.Shutdown();
             }
+        }
+        private string DetectSmapiPath()
+        {
+            List<string> possiblePaths = new List<string>();
+
+            // 모든 드라이브 문자에 대해 가능한 경로 추가
+            foreach (var drive in DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed))
+            {
+                string driveRoot = drive.RootDirectory.FullName;
+                possiblePaths.Add(Path.Combine(driveRoot, "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley", "StardewModdingAPI.exe"));
+                possiblePaths.Add(Path.Combine(driveRoot, "Program Files", "Steam", "steamapps", "common", "Stardew Valley", "StardewModdingAPI.exe"));
+                possiblePaths.Add(Path.Combine(driveRoot, "GOG Galaxy", "Games", "Stardew Valley", "StardewModdingAPI.exe"));
+            }
+
+            foreach (var path in possiblePaths)
+            {
+                if (File.Exists(path))
+                {
+                    return path;
+                }
+            }
+
+            return null;
         }
         private void LoadConfig()
         {
@@ -354,6 +392,12 @@ namespace StardewValley_Mod_Manager
             {
                 if (File.Exists(smapiExecutablePath))
                 {
+                    if (Path.GetFileName(smapiExecutablePath) != "StardewModdingAPI.exe")
+                    {
+                        MessageBox.Show("SMAPI 실행 파일이 아닙니다. 경로를 확인하세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
                     ShowOverlay();
                     var process = Process.Start(new ProcessStartInfo
                     {

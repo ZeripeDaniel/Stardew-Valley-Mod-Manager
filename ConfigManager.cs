@@ -30,33 +30,9 @@ namespace StardewValley_Mod_Manager
             }
         }
 
-        //public static void WriteSetting(string key, string value)
-        //{
-        //    XDocument doc;
-        //    if (File.Exists(ConfigFilePath))
-        //    {
-        //        doc = XDocument.Load(ConfigFilePath);
-        //        var element = doc.Root.Element(key);
-        //        if (element != null)
-        //        {
-        //            element.Value = value;
-        //        }
-        //        else
-        //        {
-        //            doc.Root.Add(new XElement(key, value));
-        //        }
-        //    }
-        //    else
-        //    {
-        //        doc = new XDocument(new XElement("Configuration", new XElement(key, value)));
-        //    }
-
-        //    Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilePath));
-        //    doc.Save(ConfigFilePath);
-        //}
-
         public static void WriteSetting(string key, string value)
         {
+            EnsureConfigFilePath();
             XDocument doc;
 
             if (!File.Exists(ConfigFilePath) || IsConfigFileEmpty())
@@ -81,6 +57,7 @@ namespace StardewValley_Mod_Manager
             }
             doc.Save(ConfigFilePath);
         }
+
         private static bool IsConfigFileEmpty()
         {
             try
@@ -95,6 +72,7 @@ namespace StardewValley_Mod_Manager
         }
         public static void SaveFolder(string folderName, string folderPath)
         {
+            EnsureConfigFilePath();
             var doc = XDocument.Load(ConfigFilePath);
             var folders = doc.Root.Element("Folders");
             var folderElement = folders.Elements("Folder").FirstOrDefault(f => f.Attribute("name").Value == folderName);
@@ -112,6 +90,7 @@ namespace StardewValley_Mod_Manager
 
             doc.Save(ConfigFilePath);
         }
+
         private static void SaveInnerFolders(XElement parentElement, string folderPath)
         {
             foreach (var dir in Directory.GetDirectories(folderPath))
@@ -169,6 +148,7 @@ namespace StardewValley_Mod_Manager
         }
         public static void ValidateConfig()
         {
+            EnsureConfigFilePath();
             XDocument doc;
 
             if (!File.Exists(ConfigFilePath))
@@ -198,6 +178,7 @@ namespace StardewValley_Mod_Manager
             doc.Save(ConfigFilePath);
         }
 
+
         private static void ValidateInnerFolders(XElement parentElement)
         {
             foreach (var innerFolder in parentElement.Elements("Inner_Folder").ToList())
@@ -224,6 +205,14 @@ namespace StardewValley_Mod_Manager
                         }
                     }
                 }
+            }
+        }
+        private static void EnsureConfigFilePath()
+        {
+            string directory = Path.GetDirectoryName(ConfigFilePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
             }
         }
     }
