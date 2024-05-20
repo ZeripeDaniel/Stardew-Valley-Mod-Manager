@@ -21,7 +21,7 @@ namespace StardewValley_Mod_Manager
             try
             {
                 var doc = XDocument.Load(ConfigFilePath);
-                var element = doc.Root.Element(key);
+                var element = doc.Root.Element("Settings")?.Element(key);
                 return element?.Value;
             }
             catch
@@ -38,7 +38,7 @@ namespace StardewValley_Mod_Manager
             if (!File.Exists(ConfigFilePath) || IsConfigFileEmpty())
             {
                 // config.xml 파일이 없거나 비어 있으면 기본 구조 생성
-                doc = new XDocument(new XElement("Configuration", new XElement("Folders")));
+                doc = new XDocument(new XElement("Configuration", new XElement("Folders"), new XElement("Settings")));
                 doc.Save(ConfigFilePath);
             }
             else
@@ -46,14 +46,20 @@ namespace StardewValley_Mod_Manager
                 doc = XDocument.Load(ConfigFilePath);
             }
 
-            var element = doc.Root.Element(key);
+            var settingsElement = doc.Root.Element("Settings") ?? new XElement("Settings");
+            if (doc.Root.Element("Settings") == null)
+            {
+                doc.Root.Add(settingsElement);
+            }
+
+            var element = settingsElement.Element(key);
             if (element != null)
             {
                 element.Value = value;
             }
             else
             {
-                doc.Root.Add(new XElement(key, value));
+                settingsElement.Add(new XElement(key, value));
             }
             doc.Save(ConfigFilePath);
         }
@@ -107,26 +113,6 @@ namespace StardewValley_Mod_Manager
                 parentElement.Add(fileElement);
             }
         }
-        private static void AddFolderContents(XElement folderElement, string folderPath)
-        {
-            var directoryInfo = new DirectoryInfo(folderPath);
-
-            foreach (var dir in directoryInfo.GetDirectories())
-            {
-                var innerFolderElement = new XElement("Inner_Folder", new XAttribute("name", dir.Name), new XAttribute("path", dir.FullName));
-                foreach (var file in dir.GetFiles())
-                {
-                    innerFolderElement.Add(new XElement("File", new XAttribute("name", file.Name), new XAttribute("path", file.FullName)));
-                }
-                folderElement.Add(innerFolderElement);
-            }
-
-            foreach (var file in directoryInfo.GetFiles())
-            {
-                folderElement.Add(new XElement("File", new XAttribute("name", file.Name), new XAttribute("path", file.FullName)));
-            }
-        }
-
         public static List<string> GetFolders()
         {
             if (File.Exists(ConfigFilePath))
@@ -154,7 +140,7 @@ namespace StardewValley_Mod_Manager
             if (!File.Exists(ConfigFilePath))
             {
                 // config.xml 파일이 없으면 기본 구조 생성
-                doc = new XDocument(new XElement("Configuration", new XElement("Folders")));
+                doc = new XDocument(new XElement("Configuration", new XElement("Folders"), new XElement("Settings")));
                 doc.Save(ConfigFilePath);
             }
             else
@@ -177,8 +163,6 @@ namespace StardewValley_Mod_Manager
 
             doc.Save(ConfigFilePath);
         }
-
-
         private static void ValidateInnerFolders(XElement parentElement)
         {
             foreach (var innerFolder in parentElement.Elements("Inner_Folder").ToList())

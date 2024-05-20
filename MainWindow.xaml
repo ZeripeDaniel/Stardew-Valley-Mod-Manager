@@ -31,6 +31,7 @@
         <BitmapImage x:Key="Img_NoneModStartBt" UriSource="/Resources/NoneModStart.png" />
         <BitmapImage x:Key="Img_OptionBt" UriSource="/Resources/OptionBt.png" />
         <BitmapImage x:Key="Img_SmapiStartBt" UriSource="/Resources/SmapiStart.png" />
+        
         <!-- 버튼 스타일 정의 -->
         <Style x:Key="ImageButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -86,7 +87,7 @@
 
         <ComboBox Name="FolderComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Margin="112,104,0,0" SelectionChanged="FolderComboBox_SelectionChanged"/>
 
-        <ComboBox Name="FontSizeComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="265,44,0,0" SelectionChanged="FontSizeComboBox_SelectionChanged" FontFamily="Sandoll 미생" Height="20">
+        <ComboBox Name="FontSizeComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="265,44,0,0" SelectionChanged="FontSizeComboBox_SelectionChanged"  Height="20">
             <ComboBoxItem Content="기본" Tag="12"/>
             <ComboBoxItem Content="1" Tag="14"/>     
             <ComboBoxItem Content="2" Tag="16"/>
@@ -217,14 +218,14 @@
 
         <Label Content="전체 선택/해제" 
                MouseDown="ToggleSelectAll_Click"
-               HorizontalAlignment="Left" Margin="282,16,0,0" VerticalAlignment="Top" Width="143" Height="28" FontFamily="Sandoll 미생" FontSize="12" Foreground="#d15054" FontWeight="Bold"/>
+               HorizontalAlignment="Left" Margin="282,16,0,0" VerticalAlignment="Top" Width="143" Height="28"  FontSize="12" Foreground="#d15054" FontWeight="Bold"/>
 
         </Grid>
         <Grid Name="OverlayGrid" Visibility="Collapsed" Width="1200" Height="570" Margin="0,150,0,0">
             <Grid.Background>
                 <SolidColorBrush Color="#80000000" />
             </Grid.Background>
-            <TextBlock Text="게임이 실행중입니다." Foreground="White" FontFamily="Sandoll 미생" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="게임이 실행중입니다." Foreground="White"  FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
     </Grid>
     

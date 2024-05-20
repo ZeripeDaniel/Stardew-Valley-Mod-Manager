@@ -41,20 +41,20 @@
                    VerticalAlignment="Top" 
                    HorizontalAlignment="Center" 
                    FontSize="35"
-                   FontFamily="Sandoll 미생" Margin="0,42,0,0"/>
+                    Margin="0,42,0,0"/>
         <TextBlock Text="Art&amp;Design J_Crick" 
                    VerticalAlignment="Top" 
                    HorizontalAlignment="Center" 
                    FontSize="35"
                    MouseLeftButtonDown="CrickText_MouseLeftButtonDown"
-                   FontFamily="Sandoll 미생" Margin="0,100,0,0"/>
+                    Margin="0,100,0,0"/>
         
         <TextBlock Text="Programing ZZ" 
                    VerticalAlignment="Top" 
                    HorizontalAlignment="Center" 
                    FontSize="35"
                    MouseLeftButtonDown="ZZText_MouseLeftButtonDown"
-                   FontFamily="Sandoll 미생" Margin="0,170,0,0"/>
+                   Margin="0,170,0,0"/>
         
         <Button Style="{StaticResource ImageButtonStyle}"
                 Click="CloseButton_Click"

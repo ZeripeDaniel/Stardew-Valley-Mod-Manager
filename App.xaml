@@ -4,5 +4,34 @@
              xmlns:local="clr-namespace:StardewValley_Mod_Manager"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <!-- 폰트 정의 -->
+        <FontFamily x:Key="F_SDMisaeng">/Fonts/#Sandoll 미생</FontFamily>
+        <FontFamily x:Key="F_NSJ">/Fonts/#Noto Sans JP Thin</FontFamily>
+        <FontFamily x:Key="F_NSK">/Fonts/#Noto Sans KR Thin</FontFamily>
+        <FontFamily x:Key="F_NSSC">/Fonts/#Noto Sans SC Thin</FontFamily>
+        <FontFamily x:Key="F_NSV">/Fonts/#Noto Sans Thin</FontFamily>
+
+        <!-- 기본 폰트 스타일 정의 -->
+        <Style TargetType="Label" x:Key="DefaultLabelStyle">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
+        <Style TargetType="TextBlock" x:Key="DefaultTextBlockStyle">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
+        <Style TargetType="TextBox" x:Key="DefaultTextBoxStyle">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
+        <Style TargetType="ComboBox" x:Key="DefaultComboBoxStyle">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
+        <Style TargetType="Button" x:Key="DefaultButtonStyle">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
+        <Style TargetType="ListView" x:Key="DefaultListViewStyle">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
+        <Style TargetType="ListViewItem" x:Key="DefaultListViewItemStyle">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
     </Application.Resources>
 </Application>

@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Fonts\NotoSans-Variable.ttf" />
+    <None Remove="Fonts\NotoSansJP.ttf" />
+    <None Remove="Fonts\NotoSansKR.ttf" />
+    <None Remove="Fonts\NotoSansSimpleChina.ttf" />
+    <None Remove="Fonts\SDMiSaeng.ttf" />
     <None Remove="Resources\AllCheckBt.png" />
     <None Remove="Resources\Checkbox.png" />
     <None Remove="Resources\Checkboxcheck.png" />
@@ -32,6 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Fonts\NotoSans-Variable.ttf" />
+    <Resource Include="Fonts\NotoSansJP.ttf" />
+    <Resource Include="Fonts\NotoSansKR.ttf" />
+    <Resource Include="Fonts\NotoSansSimpleChina.ttf" />
+    <Resource Include="Fonts\SDMiSaeng.ttf" />
     <Resource Include="Resources\AllCheckBt.png" />
     <Resource Include="Resources\Cowboy.wav" />
     <Resource Include="Resources\CreditWindow.png" />
@@ -81,10 +91,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Fonts\" />
   </ItemGroup>
 
 </Project>

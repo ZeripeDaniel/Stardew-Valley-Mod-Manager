@@ -67,6 +67,7 @@ namespace StardewValley_Mod_Manager
             soundPlayer = new SoundPlayer(Properties.Resources.Cowboy);
             FontSizeComboBox.SelectedIndex = 0;
             ApplyFontSize();
+            ApplyFont(); // 폰트 설정 적용
 
             foreach (var item in FolderContents)
             {
@@ -74,6 +75,76 @@ namespace StardewValley_Mod_Manager
                 item.ImageSource = new BitmapImage(new Uri(allSelected ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute));
             }
             FolderContentsListView.Items.Refresh();
+        }
+        private void ApplyFont(FontFamily fontFamily = null)
+        {
+            if (fontFamily == null)
+            {
+                string fontSetting = ConfigManager.ReadSetting("SelectedFont");
+                if (!string.IsNullOrEmpty(fontSetting))
+                {
+                    fontFamily = new FontFamily(fontSetting);
+                }
+            }
+
+            if (fontFamily != null)
+            {
+                Resources["DefaultLabelStyle"] = new Style(typeof(Label))
+                {
+                    Setters =
+            {
+                new Setter(Label.FontFamilyProperty, fontFamily)
+            }
+                };
+
+                Resources["DefaultTextBlockStyle"] = new Style(typeof(TextBlock))
+                {
+                    Setters =
+            {
+                new Setter(TextBlock.FontFamilyProperty, fontFamily)
+            }
+                };
+
+                Resources["DefaultTextBoxStyle"] = new Style(typeof(TextBox))
+                {
+                    Setters =
+            {
+                new Setter(TextBox.FontFamilyProperty, fontFamily)
+            }
+                };
+
+                Resources["DefaultComboBoxStyle"] = new Style(typeof(ComboBox))
+                {
+                    Setters =
+            {
+                new Setter(ComboBox.FontFamilyProperty, fontFamily)
+            }
+                };
+
+                Resources["DefaultButtonStyle"] = new Style(typeof(Button))
+                {
+                    Setters =
+            {
+                new Setter(Button.FontFamilyProperty, fontFamily)
+            }
+                };
+
+                Resources["DefaultListViewStyle"] = new Style(typeof(ListView))
+                {
+                    Setters =
+            {
+                new Setter(ListView.FontFamilyProperty, fontFamily)
+            }
+                };
+
+                Resources["DefaultListViewItemStyle"] = new Style(typeof(ListViewItem))
+                {
+                    Setters =
+            {
+                new Setter(ListViewItem.FontFamilyProperty, fontFamily)
+            }
+                };
+            }
         }
 
         private void Button_MouseEnter(object sender, MouseEventArgs e)
