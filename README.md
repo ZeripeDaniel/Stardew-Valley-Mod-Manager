@@ -1,3 +1,5 @@
+#KR
+
 # StarDewValley Mod Manager V.0.0.1 pre
 스타듀밸리 게임의 모드를 관리할 수 있는 프로그램입니다.
 ## 👨‍🏫 프로젝트 소개
@@ -35,3 +37,43 @@
 ## ✒️ API
 - 프로그램 상호간 상태, 요청 파라메터 전달
     - 개발 예정.
+
+#EN
+
+# StarDewValley Mod Manager V.0.0.1 pre
+This is a program that allows you to manage mods for the Stardew Valley game.
+## 👨‍🏫 Project Introduction
+"Managing mods was complex, and it was cumbersome to delete or move folders every time I wanted to turn off specific mods. This program was created to eliminate such laziness.
+
+## ⏲️ Development Period
+- 2024.05.17 ~ ing
+- Idea note writing
+- Design creation and modification
+- Feature implementation
+  
+## 🧑‍🤝‍🧑 Team Introduction
+- **Byun Hyunseob**: Programing
+- **Kang Minkyu**: Art & Design UX&UI
+
+## 💻 Development Environment
+- **Version**: Windows 10
+- **IDE**: Visual Studio 2022 Community
+- **Framework**: Net Core 6.0 C# Wpf
+
+## 📌 Key Features
+- Mod package folder management
+  - In multiplayer or single-player modes, mods can vary significantly, allowing for flexible changes to the running mods under such circumstances.
+  - Quickly operates by storing information on mod folders registered in the %Appdata% folder.
+  - Users can easily modify files.
+  - Limited to electric refrigerators, electric air conditioners, kimchi refrigerators, and electric washing machines.
+- Specific mode usage, enable/disable
+  - Implemented checkboxes as images in the mod list to enable loading only the required mods.
+  - Easily remove bugs and errors so that you can load mods for testing.
+- Automatic updates and mod version check
+  - Will provide free automatic updates that were previously only available by subscribing to a paid plan on existing mod loaders (Mod Organizer, Vortex, etc.).
+  - Support for checking the current version in the mod list tab and verifying the version of the latest mod and the mod owned by the user.
+  - Also planning to develop a user-friendly update process with just a few clicks.
+      
+## ✒️ API
+- Communication of status and request parameters between programs
+    - Development in progress.
