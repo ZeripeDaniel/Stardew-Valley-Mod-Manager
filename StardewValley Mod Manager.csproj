@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RootNamespace>StardewValley_Mod_Manager</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\AllCheckBt.png" />
+    <None Remove="Resources\Checkbox.png" />
+    <None Remove="Resources\Checkboxcheck.png" />
+    <None Remove="Resources\CloseBt.png" />
+    <None Remove="Resources\Cowboy.wav" />
+    <None Remove="Resources\CreditBt.png" />
+    <None Remove="Resources\CreditWindow.png" />
+    <None Remove="Resources\Duck.wav" />
+    <None Remove="Resources\ico.ico" />
+    <None Remove="Resources\MainForm.png" />
+    <None Remove="Resources\MinusBt.png" />
+    <None Remove="Resources\Modlist.png" />
+    <None Remove="Resources\Modpackgelist.png" />
+    <None Remove="Resources\ModSelect.png" />
+    <None Remove="Resources\NoneModStart.png" />
+    <None Remove="Resources\OptionBt.png" />
+    <None Remove="Resources\PlusBt.png" />
+    <None Remove="Resources\SmapiStart.png" />
+    <None Remove="Resources\TestMainWindow.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\AllCheckBt.png" />
+    <Resource Include="Resources\Cowboy.wav" />
+    <Resource Include="Resources\CreditWindow.png" />
+    <Resource Include="Resources\Duck.wav" />
+    <Resource Include="Resources\MinusBt.png" />
+    <Resource Include="Resources\PlusBt.png" />
+    <Resource Include="Resources\SmapiStart.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\OptionBt.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\NoneModStart.png" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Resource Include="Resources\Checkbox.png" />
+    <Resource Include="Resources\Checkboxcheck.png" />
+    <Resource Include="Resources\CloseBt.png" />
+    <Resource Include="Resources\CreditBt.png" />
+    <Resource Include="Resources\ico.ico" />
+    <Resource Include="Resources\MainForm.png" />
+    <Resource Include="Resources\Modlist.png" />
+    <Resource Include="Resources\Modpackgelist.png" />
+    <Resource Include="Resources\ModSelect.png" />
+    <Resource Include="Resources\TestMainWindow.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

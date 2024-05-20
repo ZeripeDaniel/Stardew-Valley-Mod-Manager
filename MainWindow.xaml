@@ -1,0 +1,231 @@
+﻿<Window x:Class="StardewValley_Mod_Manager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StardewValley_Mod_Manager"
+        mc:Ignorable="d"
+        MouseDown="Window_MouseDown"
+        Title="StardewValley Mod Manager"
+        Height="720" Width="1200"
+        ResizeMode="NoResize"
+        Icon="/Resources/ico.ico"
+        Background="{x:Null}"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <!-- 이미지 정의-->
+        <BitmapImage x:Key="Img_TestMainWindow" UriSource="/Resources/TestMainWindow.png" />
+        <BitmapImage x:Key="Img_MainWindow" UriSource="/Resources/MainForm.png" />
+        <BitmapImage x:Key="Img_Checkbox" UriSource="/Resources/Checkbox.png" />
+        <BitmapImage x:Key="Img_Checkboxchk" UriSource="/Resources/Checkboxcheck.png" />
+        <BitmapImage x:Key="Img_CloseBt" UriSource="/Resources/CloseBt.png" />
+        <BitmapImage x:Key="Img_CreditBt" UriSource="/Resources/CreditBt.png" />
+        <BitmapImage x:Key="Img_PlusBt" UriSource="/Resources/PlusBt.png" />
+        <BitmapImage x:Key="Img_MinusBt" UriSource="/Resources/MinusBt.png" />
+        <BitmapImage x:Key="Img_AllCheckBt" UriSource="/Resources/AllCheckBt.png" />
+        <BitmapImage x:Key="Img_Modlist" UriSource="/Resources/Modlist.png" />
+        <BitmapImage x:Key="Img_Modpackagelist" UriSource="/Resources/Modpackgelist.png" />
+        <BitmapImage x:Key="Img_ModSelect" UriSource="/Resources/ModSelect.png" />
+        <BitmapImage x:Key="Img_NoneModStartBt" UriSource="/Resources/NoneModStart.png" />
+        <BitmapImage x:Key="Img_OptionBt" UriSource="/Resources/OptionBt.png" />
+        <BitmapImage x:Key="Img_SmapiStartBt" UriSource="/Resources/SmapiStart.png" />
+        <!-- 버튼 스타일 정의 -->
+        <Style x:Key="ImageButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!--체크박스 이미지 전환-->
+        <DataTemplate x:Key="ImageTemplate">
+            <Border MouseDown="Image_MouseDown">
+                <Image Width="16" Height="16" Source="{Binding ImageSource}"/>
+            </Border>
+        </DataTemplate>
+
+        <!-- 이미지 버튼 스타일 정의 -->
+        <Style TargetType="ListView">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="Sandoll 미생"/>
+        </Style>
+
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="Sandoll 미생"/>
+        </Style>
+
+        <Style TargetType="ListViewItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="Sandoll 미생"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+
+    </Window.Resources>
+    <Grid>
+        <Grid Name="MainGrid" Width="1200" Margin="0,140,0,0">
+
+        <Image Source="/Resources/TestMainWindow.png"/>
+
+
+        <ComboBox Name="FolderComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Margin="112,104,0,0" SelectionChanged="FolderComboBox_SelectionChanged"/>
+
+        <ComboBox Name="FontSizeComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="265,44,0,0" SelectionChanged="FontSizeComboBox_SelectionChanged" FontFamily="Sandoll 미생" Height="20">
+            <ComboBoxItem Content="기본" Tag="12"/>
+            <ComboBoxItem Content="1" Tag="14"/>     
+            <ComboBoxItem Content="2" Tag="16"/>
+            <ComboBoxItem Content="3" Tag="18"/>
+            <ComboBoxItem Content="4" Tag="20"/>
+        </ComboBox>
+
+        <Button Style="{StaticResource ImageButtonStyle}"
+                MouseEnter="Button_MouseEnter"
+                Click="ExitButton_Click"
+                Width="83" Height="80"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,87,44"
+                Background="Transparent"
+                BorderBrush="Transparent">
+            <Button.Content>
+                <Image Source="{StaticResource Img_CloseBt}" VerticalAlignment="Bottom" />
+            </Button.Content>
+        </Button>
+
+        <Button Style="{StaticResource ImageButtonStyle}"
+                Click="OpenPopupButton_Click"
+                MouseEnter="Button_MouseEnter"
+                Width="83" Height="80"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,87,116"
+                Background="Transparent"
+                BorderBrush="Transparent">
+            <Button.Content>
+                <Image Source="{StaticResource Img_CreditBt}" VerticalAlignment="Bottom"/>
+            </Button.Content>
+        </Button>
+
+        <Button Style="{StaticResource ImageButtonStyle}"
+                Click="SettingsButton_Click"
+                MouseEnter="Button_MouseEnter"
+                Width="83" Height="80"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,87,187"
+                Background="Transparent"
+                BorderBrush="Transparent">
+            <Button.Content>
+                <Image Source="{StaticResource Img_OptionBt}" VerticalAlignment="Bottom"/>
+            </Button.Content>
+        </Button>
+
+
+        <Button Style="{StaticResource ImageButtonStyle}"
+                Name="RunNoneModsButton" 
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Width="157"
+                Click="RunNoneModsButton_Click"
+                Margin="108,0,0,47">
+            <Button.Content>
+                <Image Source="{StaticResource Img_NoneModStartBt}" />
+            </Button.Content>
+        </Button>
+
+        <Button Style="{StaticResource ImageButtonStyle}"
+                Name="RunWithModsButton" 
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Width="157"
+                Margin="108,0,0,116" 
+                Click="CopyAndLinkButton_Click" Height="67">
+            <Button.Content>
+                <Image Source="{StaticResource Img_SmapiStartBt}" />
+            </Button.Content>
+        </Button>
+        <Button Style="{StaticResource ImageButtonStyle}"
+                Name="LoadFolderButton" 
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="64"
+                Height="59"
+                Margin="39,120,0,0" 
+                Click="LoadFolderButton_Click">
+            <Button.Content>
+                <Image Source="{StaticResource Img_PlusBt}" />
+            </Button.Content>
+        </Button>
+        <Button Style="{StaticResource ImageButtonStyle}"
+                Name="DeleteFolderButton" 
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="64"
+                Height="59"
+                Margin="39,184,0,0" >
+            <Button.Content>
+                <Image Source="{StaticResource Img_MinusBt}" />
+            </Button.Content>
+        </Button>
+
+        <!-- 전체 선택/해제 버튼 -->
+        <Button Style="{StaticResource ImageButtonStyle}"
+                Name="AllCheckButton" 
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="164"
+                Height="50"
+                Click="ToggleSelectAll_Click" Margin="265,5,0,0">
+            <Button.Content>
+                <Image Source="{StaticResource Img_AllCheckBt}"/>
+            </Button.Content>
+        </Button>
+
+        <!-- 폴더 내용 표시 ListView -->
+        <ListView Name="FolderContentsListView" 
+                  MouseLeftButtonUp="FolderContentsListView_Click"
+                  MouseDoubleClick="FolderContentsListView_MouseDoubleClick"
+                  Margin="286,86,190,180" MinWidth="725" MinHeight="315" MaxWidth="725" MaxHeight="315">
+            <ListView.View>
+                    <GridView AllowsColumnReorder="False">
+                        <GridViewColumn Header="Select" Width="50" CellTemplate="{StaticResource ImageTemplate}"/>
+                    <GridViewColumn Header="Name" Width="400" DisplayMemberBinding="{Binding Name}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <ListView Name="InnerFolderContentsListView" Margin="286,400,190,61" UseLayoutRounding="True" MinWidth="725" MinHeight="120" MaxWidth="725" MaxHeight="120">
+            <ListView.View>
+                <GridView AllowsColumnReorder="False">
+                        <GridViewColumn Header="Name" Width="400" DisplayMemberBinding="{Binding Name}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Label Content="전체 선택/해제" 
+               MouseDown="ToggleSelectAll_Click"
+               HorizontalAlignment="Left" Margin="282,16,0,0" VerticalAlignment="Top" Width="143" Height="28" FontFamily="Sandoll 미생" FontSize="12" Foreground="#d15054" FontWeight="Bold"/>
+
+        </Grid>
+        <Grid Name="OverlayGrid" Visibility="Collapsed" Width="1200" Height="570" Margin="0,150,0,0">
+            <Grid.Background>
+                <SolidColorBrush Color="#80000000" />
+            </Grid.Background>
+            <TextBlock Text="게임이 실행중입니다." Foreground="White" FontFamily="Sandoll 미생" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+    
+</Window>
