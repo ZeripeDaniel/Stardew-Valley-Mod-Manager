@@ -12,8 +12,8 @@
 - 기능 구현
   
 ## 🧑‍🤝‍🧑 팀 소개
-- **ZZ** : Programing
-- **Crick** : Art & Design UX&UI
+- **ZZ(지지)** : Programing
+- **Crick(크릭)** : Art & Design UX&UI
 
 ## 💻 개발환경
 - **Version** : Windows 10
@@ -52,8 +52,8 @@ This is a program that allows you to manage mods for the Stardew Valley game.
 - Feature implementation
   
 ## 🧑‍🤝‍🧑 Team Introduction
-- **Byun Hyunseob**: Programing
-- **Kang Minkyu**: Art & Design UX&UI
+- **ZZ**: Programing
+- **Crick**: Art & Design UX&UI
 
 ## 💻 Development Environment
 - **Version**: Windows 10
