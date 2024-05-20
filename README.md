@@ -25,7 +25,6 @@
   - 멀티 또는 싱글플레이시 모드가 크게 달라질 수 있는데, 그러한 상황에서 유연하게 실행되는 모드를 변경할 수 있다.
   - %Appdata% 폴더 내에 등록된 모드 폴더의 정보를 저장하여 빠르게 작동한다.
   - 사용자가 쉽게 파일을 수정할 수 있다.
-  - 전기냉장고, 전기냉방기, 김치냉장고, 전기세탁기 품목에 한정하여 진행하였다.
 - 특정 모드 사용,사용해제
    - 모드 리스트에서 이미지로 체크박스를 구현하여 필요한 모드만 로드할 수 있도록 제작하였다.
    - 버그 및 오류가 난 파일을 쉽게 제거하여 모드를 로드해 볼 수 있다.
@@ -65,7 +64,6 @@ This is a program that allows you to manage mods for the Stardew Valley game.
   - In multiplayer or single-player modes, mods can vary significantly, allowing for flexible changes to the running mods under such circumstances.
   - Quickly operates by storing information on mod folders registered in the %Appdata% folder.
   - Users can easily modify files.
-  - Limited to electric refrigerators, electric air conditioners, kimchi refrigerators, and electric washing machines.
 - Specific mode usage, enable/disable
   - Implemented checkboxes as images in the mod list to enable loading only the required mods.
   - Easily remove bugs and errors so that you can load mods for testing.
