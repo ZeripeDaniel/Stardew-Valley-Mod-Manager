@@ -65,6 +65,7 @@ namespace StardewValley_Mod_Manager
                 HandleSettings();
                 return;
             }
+            ConfigManager.RefreshFolders();
 
             LoadFolders();
 
@@ -402,14 +403,22 @@ namespace StardewValley_Mod_Manager
                 {
                     // 폴더를 여는 경우
                     string selectedFolder = selectedItem.Name;
-                    var parentFolderElement = ConfigManager.GetFolderElement(FolderListView.SelectedItem.ToString());
-                    var folderElement = parentFolderElement.Elements("Inner_Folder")
-                                                           .FirstOrDefault(f => f.Attribute("name").Value == selectedFolder);
-
-                    if (folderElement != null)
+                    selectedItem = null;
+                    if (FolderContentsListView.SelectedItem is FileItem selectedItem2)
                     {
-                        string folderPath = folderElement.Attribute("path").Value;
-                        Process.Start("explorer.exe", folderPath);
+                        string selectedFolder2 = selectedItem2.Name;
+                        var parentFolderElement = ConfigManager.GetFolderElement(FolderListView.SelectedItem.ToString());
+                        var folderElement = FindFolderElement(parentFolderElement, selectedFolder, selectedFolder2);
+
+                        if (folderElement != null)
+                        {
+                            string folderPath = folderElement.Attribute("path").Value;
+                            Process.Start("explorer.exe", folderPath);
+                        }
+                        else
+                        {
+                            MessageBox.Show("폴더를 찾을 수 없습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                 }
                 else
@@ -430,6 +439,40 @@ namespace StardewValley_Mod_Manager
                 }
             }
         }
+
+        private XElement FindFolderElement(XElement parentElement, string folderName, string topfolderName)
+        {
+            foreach (var folderElement in parentElement.Elements("Inner_Folder"))
+            {
+                string currentFolderName = folderElement.Attribute("name").Value;
+                if (currentFolderName == topfolderName)
+                {
+                    // topfolderName과 일치하는 폴더를 찾은 경우, 그 폴더 내에서 folderName을 찾음
+                    return FindFolderElementRecursive(folderElement, folderName);
+                }
+            }
+            return null;
+        }
+
+        private XElement FindFolderElementRecursive(XElement parentElement, string folderName)
+        {
+            foreach (var folderElement in parentElement.Elements("Inner_Folder"))
+            {
+                if (folderElement.Attribute("name").Value == folderName)
+                {
+                    return folderElement;
+                }
+
+                // 재귀적으로 하위 폴더에서 찾기
+                var subFolderElement = FindFolderElementRecursive(folderElement, folderName);
+                if (subFolderElement != null)
+                {
+                    return subFolderElement;
+                }
+            }
+            return null;
+        }
+
         private void Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-
+using Newtonsoft.Json.Linq;
 
 namespace StardewValley_Mod_Manager
 {
@@ -37,17 +37,17 @@ namespace StardewValley_Mod_Manager
             }
             catch (Exception ex)
             {
-                // 예외를 로그 파일에 기록
                 LogException(ex);
                 return null;
             }
         }
+
         public static void LogException(Exception ex)
         {
             if (ex != null)
             {
                 string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error.log");
-                File.AppendAllText(logPath, $"{DateTime.Now}: {ex.ToString()}{Environment.NewLine}");
+                File.AppendAllText(logPath, $"{DateTime.Now}: {ex}{Environment.NewLine}");
             }
         }
 
@@ -83,6 +83,7 @@ namespace StardewValley_Mod_Manager
             }
             doc.Save(ConfigFilePath);
         }
+
         public static void WriteSetting(string key, int value)
         {
             WriteSetting(key, value.ToString());
@@ -124,17 +125,45 @@ namespace StardewValley_Mod_Manager
 
         private static void SaveInnerFolders(XElement parentElement, string folderPath)
         {
-            foreach (var dir in Directory.GetDirectories(folderPath))
+            var directoryInfo = new DirectoryInfo(folderPath);
+            var subDirectories = directoryInfo.GetDirectories();
+            var files = directoryInfo.GetFiles();
+
+            // 기존 Inner_Folder와 File 요소를 전부 삭제
+            parentElement.Elements("Inner_Folder").Remove();
+            parentElement.Elements("File").Remove();
+
+            // 새롭게 Inner_Folder와 File 요소를 추가
+            foreach (var dir in subDirectories)
             {
-                var innerFolderElement = new XElement("Inner_Folder", new XAttribute("name", Path.GetFileName(dir)), new XAttribute("path", dir));
+                var innerFolderElement = new XElement("Inner_Folder",
+                    new XAttribute("name", dir.Name),
+                    new XAttribute("path", dir.FullName));
                 parentElement.Add(innerFolderElement);
-                SaveInnerFolders(innerFolderElement, dir); // 재귀적으로 하위 폴더 저장
+                SaveInnerFolders(innerFolderElement, dir.FullName); // 재귀적으로 하위 폴더 저장
+
+                // manifest.json 파일을 확인하고 필요한 값을 저장
+                var manifestPath = Path.Combine(dir.FullName, "manifest.json");
+                if (File.Exists(manifestPath))
+                {
+                    var manifestJson = File.ReadAllText(manifestPath);
+                    var manifest = JObject.Parse(manifestJson);
+                    var version = manifest["Version"]?.ToString();
+                    var uniqueId = manifest["UniqueID"]?.ToString();
+
+                    if (version != null)
+                        innerFolderElement.SetAttributeValue("version", version);
+
+                    if (uniqueId != null)
+                        innerFolderElement.SetAttributeValue("UniqueID", uniqueId);
+                }
             }
 
-            foreach (var file in Directory.GetFiles(folderPath))
+            foreach (var file in files)
             {
-                long fileSize = new FileInfo(file).Length;
-                var fileElement = new XElement("File", new XAttribute("name", Path.GetFileName(file)), new XAttribute("size", fileSize));
+                var fileElement = new XElement("File",
+                    new XAttribute("name", file.Name),
+                    new XAttribute("size", file.Length));
                 parentElement.Add(fileElement);
             }
         }
@@ -158,6 +187,7 @@ namespace StardewValley_Mod_Manager
             }
             return null;
         }
+
         public static void ValidateConfig()
         {
             EnsureConfigFilePath();
@@ -200,7 +230,6 @@ namespace StardewValley_Mod_Manager
             doc.Save(ConfigFilePath);
         }
 
-
         private static void ValidateInnerFolders(XElement parentElement)
         {
             foreach (var innerFolder in parentElement.Elements("Inner_Folder").ToList())
@@ -228,6 +257,50 @@ namespace StardewValley_Mod_Manager
                     }
                 }
             }
+        }
+        public static void RefreshFolders()
+        {
+            EnsureConfigFilePath();
+            XDocument doc;
+
+            if (!File.Exists(ConfigFilePath))
+            {
+                doc = new XDocument(new XElement("Configuration", new XElement("Folders"), new XElement("Settings")));
+                doc.Save(ConfigFilePath);
+            }
+            else
+            {
+                try
+                {
+                    doc = XDocument.Load(ConfigFilePath);
+                    if (doc.Root == null)
+                    {
+                        throw new XmlException("Root element is missing.");
+                    }
+                }
+                catch (XmlException)
+                {
+                    doc = new XDocument(new XElement("Configuration", new XElement("Folders"), new XElement("Settings")));
+                    doc.Save(ConfigFilePath);
+                }
+            }
+
+            var folders = doc.Root.Element("Folders");
+            if (folders == null)
+            {
+                folders = new XElement("Folders");
+                doc.Root.Add(folders);
+            }
+
+            if (folders.HasElements)
+            {
+                foreach (var folder in folders.Elements("Folder").ToList())
+                {
+                    SaveInnerFolders(folder, folder.Attribute("path").Value);
+                }
+            }
+
+            doc.Save(ConfigFilePath);
         }
     }
 }
