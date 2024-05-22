@@ -1207,7 +1207,7 @@ namespace StardewValley_Mod_Manager
         {
             // 설정에서 시작 시 업데이트 확인 여부를 읽어옴
             bool startUpUpdateCheck = bool.Parse(ConfigManager.ReadSetting("StartUpUpdateCheck") ?? "false");
-
+            
             if (startUpUpdateCheck)
             {
                 await CheckAllFoldersForUpdatesAsync();
@@ -1233,6 +1233,12 @@ namespace StardewValley_Mod_Manager
                     }
                 }
             }
+        }
+        private async void SelfWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+           
+                await CheckAllFoldersForUpdatesAsync();
+           
         }
 
         //private async Task CheckAllFoldersForUpdatesAsync()

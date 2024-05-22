@@ -90,7 +90,7 @@
             <Image Source="/Resources/TestMainWindow.png"/>
 
             <!-- 모드폴더 리스트 -->
-          <ListView Name="FolderListView"
+            <ListView Name="FolderListView"
           HorizontalAlignment="Left"
           VerticalAlignment="Top"
           Width="134"
@@ -275,6 +275,7 @@
                Style="{StaticResource BaseLabelStyle}"
                FontSize="12" Foreground="#d15054" FontWeight="Bold"/>
             <Button Content="(APITest)UpdateCheck" HorizontalAlignment="Left" Margin="893,44,0,0" VerticalAlignment="Top" Click="CheckForUpdatesButton_Click"/>
+            <Button Content="self mod Version Check" HorizontalAlignment="Left" Margin="731,44,0,0" VerticalAlignment="Top" Click="SelfWindow_Loaded"/>
 
         </Grid>
         <!-- 게임이 실행되면 MainWindow에 접근할 수 없도록 처리하는 그리드-->
