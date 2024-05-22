@@ -12,9 +12,9 @@
 		<AssemblyCompany>Prdex</AssemblyCompany>
 		<AssemblyProduct>StardewValley_Mod_Manager</AssemblyProduct>
 		<AssemblyCopyright>© Prdex. All rights reserved.</AssemblyCopyright>
-		<AssemblyVersion>0.0.1</AssemblyVersion>
-		<FileVersion>0.0.1</FileVersion>
-		<VersionPrefix>0.0.1</VersionPrefix>
+		<AssemblyVersion>0.0.2</AssemblyVersion>
+		<FileVersion>0.0.2</FileVersion>
+		<VersionPrefix>0.0.2</VersionPrefix>
 		<Authors>© Prdex</Authors>
 		<ApplicationIcon>ico.ico</ApplicationIcon>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>

@@ -230,13 +230,15 @@
 
             <!-- 폴더 내용 표시 ListView -->
             <ListView Name="FolderContentsListView"
-                  MouseLeftButtonUp="FolderContentsListView_Click"
+                  MouseLeftButtonUp="FolderContentsListView_Click"   
                   MouseDoubleClick="FolderContentsListView_MouseDoubleClick"
                   Margin="286,86,190,180" MinWidth="725" MinHeight="315" MaxWidth="725" MaxHeight="315">
                 <ListView.View>
                     <GridView AllowsColumnReorder="False">
                         <GridViewColumn Header="Select" Width="50" CellTemplate="{StaticResource ImageTemplate}"/>
                         <GridViewColumn Header="Name" Width="400" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="Current Version" DisplayMemberBinding="{Binding CurrentVersion}" Width="120"/>
+                        <GridViewColumn Header="Latest Version" DisplayMemberBinding="{Binding LatestVersion}" Width="120"/>
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -262,6 +264,7 @@
                Width="143" Height="28"
                Style="{StaticResource BaseLabelStyle}"
                FontSize="12" Foreground="#d15054" FontWeight="Bold"/>
+            <Button Content="(APITest)UpdateCheck" HorizontalAlignment="Left" Margin="893,44,0,0" VerticalAlignment="Top" Click="CheckForUpdatesButton_Click"/>
 
         </Grid>
         <!-- 게임이 실행되면 MainWindow에 접근할 수 없도록 처리하는 그리드-->

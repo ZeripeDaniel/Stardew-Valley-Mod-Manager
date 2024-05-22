@@ -14,6 +14,7 @@ using Microsoft.Win32;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Net.Http;
 
 #pragma warning disable CS8618
 #pragma warning disable CS8600
@@ -57,6 +58,8 @@ namespace StardewValley_Mod_Manager
         /// 전체 선택 상태
         /// </summary>
         private bool allSelected = true;
+
+        private NexusModsApi api; // API 객체 추가
         #region 초기화
         public MainWindow()
         {
@@ -70,6 +73,7 @@ namespace StardewValley_Mod_Manager
             try
             {
                 LoadConfig();
+                api = new NexusModsApi("fUuT6ZIEKgD4RnI6iZGpg6GFWHXCbDiXPGwnXcDp33qcm6sxSEqe--AcqV2pCTjHRwnomK--DMk9yoDD8D5MSrLw8v2JdQ==", "stardewvalley"); // 고정값 "stardewvalley"로 설정
             }
             catch (Exception)
             {
@@ -241,7 +245,7 @@ namespace StardewValley_Mod_Manager
         {
             ConfigManager.WriteSetting(key, value);
         }
-        private void DisplayFolderContents(string folderName)
+        private async void DisplayFolderContents(string folderName)
         {
             FolderContents.Clear();
             var folderElement = ConfigManager.GetFolderElement(folderName);
@@ -249,16 +253,51 @@ namespace StardewValley_Mod_Manager
             {
                 foreach (var innerFolder in folderElement.Elements("Inner_Folder"))
                 {
-                    FolderContents.Add(new FileItem
+                    var fileItem = new FileItem
                     {
                         Name = innerFolder.Attribute("name").Value,
                         IsChecked = false,
                         IsFolder = true,
-                        ImageSource = new BitmapImage(new Uri("/Resources/Checkbox.png", UriKind.RelativeOrAbsolute))
-                    });
+                        ImageSource = new BitmapImage(new Uri("/Resources/Checkbox.png", UriKind.RelativeOrAbsolute)),
+                        CurrentVersion = innerFolder.Attribute("version")?.Value,
+                        UpdateKey = innerFolder.Attribute("UpdateKey")?.Value
+                    };
+
+                    try
+                    {
+                        // LatestVersion을 API에서 받아오기
+                        if (!string.IsNullOrEmpty(fileItem.UpdateKey) && !string.IsNullOrEmpty(fileItem.CurrentVersion))
+                        {
+                            string latestVersion = await api.GetLatestModVersionAsync(fileItem.UpdateKey);
+                            fileItem.LatestVersion = latestVersion ?? "버전정보없음";
+                        }
+                        else
+                        {
+                            fileItem.LatestVersion = "버전정보없음";
+                        }
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                    {
+                        fileItem.LatestVersion = "버전정보없음";
+                        //MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        fileItem.LatestVersion = "버전정보없음";
+                        //MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+
+                    FolderContents.Add(fileItem);
                 }
             }
         }
+
+
+
         private void DisplayInnerFolderContents(string folderName)
         {
             InnerFolderContents.Clear();
@@ -890,6 +929,29 @@ namespace StardewValley_Mod_Manager
             public bool IsChecked { get; set; }
             public bool IsFolder { get; set; }
             public BitmapImage ImageSource { get; set; }
+            public string CurrentVersion { get; set; }
+            public string LatestVersion { get; set; }
+            public string UniqueID { get; set; }
+            public string UpdateKey { get; set; } // 새로운 속성 추가
+        }
+        // 새로운 메소드: 모드 버전 업데이트 확인
+        private async void CheckForUpdatesButton_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in FolderContents)
+            {
+                if (!string.IsNullOrEmpty(item.UpdateKey))
+                {
+                    item.LatestVersion = await api.GetLatestModVersionAsync(item.UpdateKey);
+                    if (item.CurrentVersion != item.LatestVersion)
+                    {
+                        var result = MessageBox.Show($"{item.Name} 새로운 버전이 있습니다! 지금 다운로드할까욘?", "Update Available", MessageBoxButton.YesNo);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            // 다운로드 및 업데이트 로직 구현
+                        }
+                    }
+                }
+            }
         }
         private bool IsConfigFileEmpty()
         {
