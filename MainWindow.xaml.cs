@@ -81,8 +81,6 @@ namespace StardewValley_Mod_Manager
             }
             FolderContentsListView.Items.Refresh();
         }
-
-
         public void ApplyFont(FontFamily? fontFamily = null)
         {
             if (fontFamily == null)
