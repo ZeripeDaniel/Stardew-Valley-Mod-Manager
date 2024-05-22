@@ -238,7 +238,17 @@
                         <GridViewColumn Header="Select" Width="50" CellTemplate="{StaticResource ImageTemplate}"/>
                         <GridViewColumn Header="Name" Width="400" DisplayMemberBinding="{Binding Name}"/>
                         <GridViewColumn Header="Current Version" DisplayMemberBinding="{Binding CurrentVersion}" Width="120"/>
-                        <GridViewColumn Header="Latest Version" DisplayMemberBinding="{Binding LatestVersion}" Width="120"/>
+                        <!--<GridViewColumn Header="Latest Version" DisplayMemberBinding="{Binding LatestVersion}" Width="120"/>-->
+                        <GridViewColumn Header="Latest Version">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding LatestVersion}" />
+                                        <TextBlock Text="!" Foreground="Red" Visibility="{Binding Path=IsUpdateCheckEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>

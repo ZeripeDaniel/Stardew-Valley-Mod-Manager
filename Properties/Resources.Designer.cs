@@ -111,6 +111,16 @@ namespace StardewValley_Mod_Manager.Properties {
         /// <summary>
         ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
+        internal static System.Drawing.Bitmap chick {
+            get {
+                object obj = ResourceManager.GetObject("chick", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
         internal static System.Drawing.Bitmap CloseBt {
             get {
                 object obj = ResourceManager.GetObject("CloseBt", resourceCulture);

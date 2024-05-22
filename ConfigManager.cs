@@ -27,6 +27,45 @@ namespace StardewValley_Mod_Manager
             "StardewValleyModManager",
             "config.xml");
 
+        private static readonly string FirstRunFilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "StardewValleyModManager",
+            "HelloFriend");
+        public static bool IsFirstRun()
+        {
+            return !File.Exists(FirstRunFilePath);
+        }
+
+        public static void SetFirstRun()
+        {
+            EnsureFirstRunFilePath();
+            File.Create(FirstRunFilePath).Close();
+        }
+        private static void EnsureFirstRunFilePath()
+        {
+            string directory = Path.GetDirectoryName(FirstRunFilePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+        }
+
+        public static void CheckAndBackupModsFolder(string modsFolderPath)
+        {
+            if (IsFirstRun())
+            {
+                // 최초 실행 시 Mods 폴더를 ModsBackup으로 이름 변경
+                string backupFolderPath = Path.Combine(Path.GetDirectoryName(modsFolderPath), "ModsBackup");
+
+                if (Directory.Exists(modsFolderPath))
+                {
+                    Directory.Move(modsFolderPath, backupFolderPath);
+                }
+
+                // 최초 실행이 완료되었음을 표시하는 파일 생성
+                SetFirstRun();
+            }
+        }
         private static void EnsureConfigFilePath()
         {
             string directory = Path.GetDirectoryName(ConfigFilePath);
@@ -114,7 +153,7 @@ namespace StardewValley_Mod_Manager
             }
         }
 
-        public static void SaveFolder(string folderName, string folderPath)
+        public static void SaveFolder(string folderName, string folderPath, XElement updatedInnerFolder = null)
         {
             EnsureConfigFilePath();
             var doc = XDocument.Load(ConfigFilePath);
@@ -130,117 +169,163 @@ namespace StardewValley_Mod_Manager
                 folderElement.SetAttributeValue("path", folderPath);
             }
 
-            SaveInnerFolders(folderElement, folderPath);
+            if (updatedInnerFolder != null)
+            {
+                var existingInnerFolder = folderElement.Elements("Inner_Folder").FirstOrDefault(f => f.Attribute("name").Value == updatedInnerFolder.Attribute("name").Value);
+                if (existingInnerFolder != null)
+                {
+                    // 기존 LatestVersion 값을 유지하며 업데이트
+                    var latestVersion = existingInnerFolder.Attribute("LatestVersion")?.Value;
+                    existingInnerFolder.ReplaceWith(updatedInnerFolder);
+                    if (latestVersion != null)
+                    {
+                        updatedInnerFolder.SetAttributeValue("LatestVersion", latestVersion);
+                    }
+                }
+                else
+                {
+                    folderElement.Add(updatedInnerFolder);
+                }
+            }
+            else
+            {
+                SaveInnerFolders(folderElement, folderPath);
+            }
 
             doc.Save(ConfigFilePath);
         }
-
-        //private static void SaveInnerFolders(XElement parentElement, string folderPath)
-        //{
-        //    var directoryInfo = new DirectoryInfo(folderPath);
-        //    var subDirectories = directoryInfo.GetDirectories();
-        //    var files = directoryInfo.GetFiles();
-
-        //    // 기존 Inner_Folder와 File 요소를 전부 삭제
-        //    parentElement.Elements("Inner_Folder").Remove();
-        //    parentElement.Elements("File").Remove();
-
-        //    // 새롭게 Inner_Folder와 File 요소를 추가
-        //    foreach (var dir in subDirectories)
-        //    {
-        //        var innerFolderElement = new XElement("Inner_Folder",
-        //            new XAttribute("name", dir.Name),
-        //            new XAttribute("path", dir.FullName));
-        //        parentElement.Add(innerFolderElement);
-        //        SaveInnerFolders(innerFolderElement, dir.FullName); // 재귀적으로 하위 폴더 저장
-
-        //        // manifest.json 파일을 확인하고 필요한 값을 저장
-        //        var manifestPath = Path.Combine(dir.FullName, "manifest.json");
-        //        if (File.Exists(manifestPath))
-        //        {
-        //            var manifestJson = File.ReadAllText(manifestPath);
-        //            var manifest = JObject.Parse(manifestJson);
-        //            var version = manifest["Version"]?.ToString();
-        //            var uniqueId = manifest["UniqueID"]?.ToString();
-
-        //            if (version != null)
-        //                innerFolderElement.SetAttributeValue("version", version);
-
-        //            if (uniqueId != null)
-        //                innerFolderElement.SetAttributeValue("UniqueID", uniqueId);
-        //        }
-        //    }
-
-        //    foreach (var file in files)
-        //    {
-        //        var fileElement = new XElement("File",
-        //            new XAttribute("name", file.Name),
-        //            new XAttribute("size", file.Length));
-        //        parentElement.Add(fileElement);
-        //    }
-        //}
-        private static void SaveInnerFolders(XElement parentElement, string folderPath)
+        private static void SaveInnerFolders(XElement parentElement, string folderPath, bool isTopLevel = true)
         {
             var directoryInfo = new DirectoryInfo(folderPath);
             var subDirectories = directoryInfo.GetDirectories();
             var files = directoryInfo.GetFiles();
 
-            // 기존 Inner_Folder와 File 요소를 전부 삭제
-            parentElement.Elements("Inner_Folder").Remove();
-            parentElement.Elements("File").Remove();
+            // 기존 Inner_Folder 요소들을 가져옴
+            var existingInnerFolders = parentElement.Elements("Inner_Folder").ToDictionary(f => f.Attribute("name").Value);
+            var existingFiles = parentElement.Elements("File").ToDictionary(f => f.Attribute("name").Value);
 
-            // 새롭게 Inner_Folder와 File 요소를 추가
+            // 새롭게 Inner_Folder와 File 요소를 추가 또는 업데이트
             foreach (var dir in subDirectories)
             {
-                var innerFolderElement = new XElement("Inner_Folder",
-                    new XAttribute("name", dir.Name),
-                    new XAttribute("path", dir.FullName));
-                parentElement.Add(innerFolderElement);
-                SaveInnerFolders(innerFolderElement, dir.FullName); // 재귀적으로 하위 폴더 저장
-
-                // manifest.json 파일을 확인하고 필요한 값을 저장
-                var manifestPath = Path.Combine(dir.FullName, "manifest.json");
-                if (File.Exists(manifestPath))
+                XElement innerFolderElement;
+                if (existingInnerFolders.TryGetValue(dir.Name, out innerFolderElement))
                 {
-                    var manifestJson = File.ReadAllText(manifestPath);
-                    var manifest = JObject.Parse(manifestJson);
-                    var version = manifest["Version"]?.ToString();
-                    var uniqueId = manifest["UniqueID"]?.ToString();
+                    // 기존 요소 업데이트
+                    innerFolderElement.SetAttributeValue("path", dir.FullName);
 
-                    if (version != null)
-                        innerFolderElement.SetAttributeValue("version", version);
-
-                    if (uniqueId != null)
-                        innerFolderElement.SetAttributeValue("UniqueID", uniqueId);
-
-                    // UpdateKeys 값을 처리
-                    var updateKeys = manifest["UpdateKeys"]?.ToObject<string[]>();
-                    if (updateKeys != null)
+                    // manifest.json 파일을 확인하고 필요한 값을 업데이트
+                    var manifestPath = Path.Combine(dir.FullName, "manifest.json");
+                    if (File.Exists(manifestPath))
                     {
-                        var nexusKey = updateKeys.FirstOrDefault(key => key.StartsWith("Nexus:"));
-                        if (nexusKey != null)
-                        {
-                            var modId = nexusKey.Split(':')[1];
-                            innerFolderElement.SetAttributeValue("UpdateKey", modId);
-                        }
-                    }
-                    else
-                    {
-                        // UpdateKeys 값이 없는 경우
-                        innerFolderElement.SetAttributeValue("UpdateKey", ""); // 기본값 설정 또는 속성 추가하지 않음
+                        var manifestJson = File.ReadAllText(manifestPath);
+                        var manifest = JObject.Parse(manifestJson);
+                        var version = manifest["Version"]?.ToString();
+                        var uniqueId = manifest["UniqueID"]?.ToString();
+                        var updateKeys = manifest["UpdateKeys"]?.FirstOrDefault(k => k.ToString().StartsWith("Nexus:"))?.ToString().Split(':').Last();
+
+                        if (version != null)
+                            innerFolderElement.SetAttributeValue("version", version);
+
+                        if (uniqueId != null)
+                            innerFolderElement.SetAttributeValue("UniqueID", uniqueId);
+
+                        if (updateKeys != null)
+                            innerFolderElement.SetAttributeValue("UpdateKey", updateKeys);
                     }
                 }
+                else
+                {
+                    // 새 요소 추가
+                    innerFolderElement = new XElement("Inner_Folder",
+                        new XAttribute("name", dir.Name),
+                        new XAttribute("path", dir.FullName));
+
+                    if (isTopLevel)
+                    {
+                        innerFolderElement.Add(new XAttribute("IsChecked", "true"));
+                    }
+
+                    // manifest.json 파일을 확인하고 필요한 값을 저장
+                    var manifestPath = Path.Combine(dir.FullName, "manifest.json");
+                    if (File.Exists(manifestPath))
+                    {
+                        var manifestJson = File.ReadAllText(manifestPath);
+                        var manifest = JObject.Parse(manifestJson);
+                        var version = manifest["Version"]?.ToString();
+                        var uniqueId = manifest["UniqueID"]?.ToString();
+                        var updateKeys = manifest["UpdateKeys"]?.FirstOrDefault(k => k.ToString().StartsWith("Nexus:"))?.ToString().Split(':').Last();
+
+                        if (version != null)
+                            innerFolderElement.SetAttributeValue("version", version);
+
+                        if (uniqueId != null)
+                            innerFolderElement.SetAttributeValue("UniqueID", uniqueId);
+
+                        if (updateKeys != null)
+                            innerFolderElement.SetAttributeValue("UpdateKey", updateKeys);
+                    }
+
+                    parentElement.Add(innerFolderElement);
+                }
+
+                // 재귀적으로 하위 폴더 저장
+                SaveInnerFolders(innerFolderElement, dir.FullName, false);
             }
 
             foreach (var file in files)
             {
-                var fileElement = new XElement("File",
-                    new XAttribute("name", file.Name),
-                    new XAttribute("size", file.Length));
-                parentElement.Add(fileElement);
+                XElement fileElement;
+                if (existingFiles.TryGetValue(file.Name, out fileElement))
+                {
+                    // 기존 요소 업데이트
+                    fileElement.SetAttributeValue("path", file.FullName);
+                    fileElement.SetAttributeValue("size", file.Length);
+                }
+                else
+                {
+                    // 새 요소 추가
+                    fileElement = new XElement("File",
+                        new XAttribute("name", file.Name),
+                        new XAttribute("path", file.FullName),
+                        new XAttribute("size", file.Length));
+                    parentElement.Add(fileElement);
+                }
+            }
+
+            // 기존 요소들 중 업데이트되지 않은 요소 제거
+            var newInnerFolderNames = subDirectories.Select(d => d.Name).ToHashSet();
+            var newFileNames = files.Select(f => f.Name).ToHashSet();
+
+            foreach (var existingInnerFolder in existingInnerFolders.Values)
+            {
+                if (!newInnerFolderNames.Contains(existingInnerFolder.Attribute("name").Value))
+                {
+                    existingInnerFolder.Remove();
+                }
+            }
+
+            foreach (var existingFile in existingFiles.Values)
+            {
+                if (!newFileNames.Contains(existingFile.Attribute("name").Value))
+                {
+                    existingFile.Remove();
+                }
             }
         }
 
+
+
+
+
+        public static List<XElement> GetAllFolders()
+        {
+            if (File.Exists(ConfigFilePath))
+            {
+                var doc = XDocument.Load(ConfigFilePath);
+                return doc.Descendants("Folder").ToList();
+            }
+            return new List<XElement>();
+        }
 
         public static List<string> GetFolders()
         {
@@ -288,21 +373,8 @@ namespace StardewValley_Mod_Manager
                     doc.Save(ConfigFilePath);
                 }
             }
-
-            var folders = doc.Root.Element("Folders");
-            if (folders == null)
-            {
-                folders = new XElement("Folders");
-                doc.Root.Add(folders);
-            }
-
-            foreach (var folder in folders.Elements("Folder").ToList())
-            {
-                ValidateInnerFolders(folder);
-            }
-
-            doc.Save(ConfigFilePath);
         }
+
 
         private static void ValidateInnerFolders(XElement parentElement)
         {
@@ -377,5 +449,39 @@ namespace StardewValley_Mod_Manager
 
             doc.Save(ConfigFilePath);
         }
+        public static void SaveConfig(XDocument doc)
+        {
+            doc.Save(ConfigFilePath);
+            
+        }
+        public static void UpdateIsChecked(string folderName, string itemName, bool isChecked)
+        {
+            EnsureConfigFilePath();
+            var doc = XDocument.Load(ConfigFilePath);
+            var folderElement = doc.Descendants("Folder")
+                                   .FirstOrDefault(f => f.Attribute("name").Value == folderName);
+
+            if (folderElement != null)
+            {
+                var itemElement = folderElement.Descendants("Inner_Folder")
+                                               .FirstOrDefault(i => i.Attribute("name").Value == itemName) ??
+                                  folderElement.Descendants("File")
+                                               .FirstOrDefault(i => i.Attribute("name").Value == itemName);
+
+                if (itemElement != null)
+                {
+                    itemElement.SetAttributeValue("IsChecked", isChecked.ToString());
+                    doc.Save(ConfigFilePath);
+                }
+            }
+        }
+        public static List<XElement> GetAllInnerFolders()
+        {
+            EnsureConfigFilePath();
+            var doc = XDocument.Load(ConfigFilePath);
+            var innerFolders = doc.Descendants("Inner_Folder").ToList();
+            return innerFolders;
+        }
+
     }
 }

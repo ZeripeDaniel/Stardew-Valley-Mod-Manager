@@ -10,7 +10,9 @@
         <FontFamily x:Key="F_NSK">/Fonts/#Noto Sans KR Thin</FontFamily>
         <FontFamily x:Key="F_NSSC">/Fonts/#Noto Sans SC Thin</FontFamily>
         <FontFamily x:Key="F_NSV">/Fonts/#Noto Sans Thin</FontFamily>
-        
+
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
         <Style x:Key="BaseLabelStyle" TargetType="Label">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
@@ -30,6 +32,9 @@
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
         <Style x:Key="BaseListViewItemStyle" TargetType="ListViewItem">
+            <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
+        </Style>
+        <Style x:Key="BaseCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="FontFamily" Value="{StaticResource F_SDMisaeng}" />
         </Style>
     </Application.Resources>

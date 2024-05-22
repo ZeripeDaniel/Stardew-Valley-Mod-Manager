@@ -64,6 +64,10 @@ namespace StardewValley_Mod_Manager
         public MainWindow()
         {
             InitializeComponent();
+            this.Loaded += Window_Loaded; // Window_Loaded 이벤트 핸들러 연결
+
+            // NexusModsApi 인스턴스 생성
+            api = new NexusModsApi("fUuT6ZIEKgD4RnI6iZGpg6GFWHXCbDiXPGwnXcDp33qcm6sxSEqe--AcqV2pCTjHRwnomK--DMk9yoDD8D5MSrLw8v2JdQ==", "stardewvalley"); // 고정값 "stardewvalley"로 설정
 
             FolderContents = new ObservableCollection<FileItem>();
             InnerFolderContents = new ObservableCollection<FileItem>();
@@ -73,7 +77,6 @@ namespace StardewValley_Mod_Manager
             try
             {
                 LoadConfig();
-                api = new NexusModsApi("fUuT6ZIEKgD4RnI6iZGpg6GFWHXCbDiXPGwnXcDp33qcm6sxSEqe--AcqV2pCTjHRwnomK--DMk9yoDD8D5MSrLw8v2JdQ==", "stardewvalley"); // 고정값 "stardewvalley"로 설정
             }
             catch (Exception)
             {
@@ -245,55 +248,62 @@ namespace StardewValley_Mod_Manager
         {
             ConfigManager.WriteSetting(key, value);
         }
-        private async void DisplayFolderContents(string folderName)
+        //private void DisplayFolderContents(string folderName)
+        //{
+        //    FolderContents.Clear();
+        //    var folderElement = ConfigManager.GetFolderElement(folderName);
+        //    if (folderElement != null)
+        //    {
+        //        foreach (var innerFolder in folderElement.Elements("Inner_Folder"))
+        //        {
+        //            var isChecked = bool.Parse(innerFolder.Attribute("IsChecked")?.Value ?? "true");
+        //            var fileItem = new FileItem
+        //            {
+        //                Name = innerFolder.Attribute("name").Value,
+        //                IsChecked = isChecked,
+        //                IsFolder = true,
+        //                ImageSource = new BitmapImage(new Uri(isChecked ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute)),
+        //                CurrentVersion = innerFolder.Attribute("version")?.Value,
+        //                LatestVersion = innerFolder.Attribute("LatestVersion")?.Value ?? "버전정보없음",
+        //                UpdateKey = innerFolder.Attribute("UpdateKey")?.Value
+        //            };
+
+        //            FolderContents.Add(fileItem);
+        //        }
+        //    }
+
+        //    FolderContentsListView.Items.Refresh(); // FolderContents가 변경되었음을 UI에 알림
+        //}
+        private void DisplayFolderContents(string folderName)
         {
             FolderContents.Clear();
-            var folderElement = ConfigManager.GetFolderElement(folderName);
+            var doc = XDocument.Load(ConfigManager.ConfigFilePath); // config.xml을 다시 불러옴
+            var folderElement = doc.Descendants("Folder")
+                                   .FirstOrDefault(f => f.Attribute("name").Value == folderName);
+
             if (folderElement != null)
             {
                 foreach (var innerFolder in folderElement.Elements("Inner_Folder"))
                 {
+                    var isChecked = bool.Parse(innerFolder.Attribute("IsChecked")?.Value ?? "true");
+                    var isUpdateCheckEnabled = bool.Parse(ConfigManager.ReadSetting("CheckForUpdatesOnStart") ?? "false");
                     var fileItem = new FileItem
                     {
                         Name = innerFolder.Attribute("name").Value,
-                        IsChecked = false,
+                        IsChecked = isChecked,
                         IsFolder = true,
-                        ImageSource = new BitmapImage(new Uri("/Resources/Checkbox.png", UriKind.RelativeOrAbsolute)),
-                        CurrentVersion = innerFolder.Attribute("version")?.Value,
-                        UpdateKey = innerFolder.Attribute("UpdateKey")?.Value
+                        ImageSource = new BitmapImage(new Uri(isChecked ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute)),
+                        CurrentVersion = innerFolder.Attribute("version")?.Value ?? "버전정보없음",
+                        LatestVersion = innerFolder.Attribute("LatestVersion")?.Value ?? "버전정보없음",
+                        UpdateKey = innerFolder.Attribute("UpdateKey")?.Value,
+                        IsUpdateCheckEnabled = isUpdateCheckEnabled
                     };
-
-                    try
-                    {
-                        // LatestVersion을 API에서 받아오기
-                        if (!string.IsNullOrEmpty(fileItem.UpdateKey) && !string.IsNullOrEmpty(fileItem.CurrentVersion))
-                        {
-                            string latestVersion = await api.GetLatestModVersionAsync(fileItem.UpdateKey);
-                            fileItem.LatestVersion = latestVersion ?? "버전정보없음";
-                        }
-                        else
-                        {
-                            fileItem.LatestVersion = "버전정보없음";
-                        }
-                    }
-                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
-                    {
-                        fileItem.LatestVersion = "버전정보없음";
-                        //MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-                    {
-                        fileItem.LatestVersion = "버전정보없음";
-                        //MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
 
                     FolderContents.Add(fileItem);
                 }
             }
+
+            FolderContentsListView.Items.Refresh(); // FolderContents가 변경되었음을 UI에 알림
         }
 
 
@@ -302,7 +312,9 @@ namespace StardewValley_Mod_Manager
         {
             InnerFolderContents.Clear();
 
-            var parentFolderElement = ConfigManager.GetFolderElement(FolderListView.SelectedItem.ToString());
+            var doc = XDocument.Load(ConfigManager.ConfigFilePath); // config.xml을 다시 불러옴
+            var parentFolderElement = doc.Descendants("Folder")
+                                         .FirstOrDefault(f => f.Attribute("name").Value == FolderListView.SelectedItem.ToString());
             var folderElement = parentFolderElement.Elements("Inner_Folder")
                                                    .FirstOrDefault(f => f.Attribute("name").Value == folderName);
 
@@ -310,12 +322,17 @@ namespace StardewValley_Mod_Manager
             {
                 foreach (var innerFolder in folderElement.Elements("Inner_Folder"))
                 {
+                    var isChecked = bool.Parse(innerFolder.Attribute("IsChecked")?.Value ?? "true");
                     InnerFolderContents.Add(new FileItem
                     {
                         Name = innerFolder.Attribute("name").Value,
-                        Path = innerFolder.Attribute("path").Value, // 파일 경로 설정
-                        IsChecked = false,
-                        IsFolder = true
+                        Path = innerFolder.Attribute("path").Value,
+                        IsChecked = isChecked,
+                        IsFolder = true,
+                        ImageSource = new BitmapImage(new Uri(isChecked ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute)),
+                        CurrentVersion = innerFolder.Attribute("version")?.Value,
+                        UniqueID = innerFolder.Attribute("UniqueID")?.Value,
+                        UpdateKey = innerFolder.Attribute("UpdateKey")?.Value
                     });
                 }
 
@@ -325,13 +342,23 @@ namespace StardewValley_Mod_Manager
                     InnerFolderContents.Add(new FileItem
                     {
                         Name = file.Attribute("name").Value,
-                        Path = filePath, // 파일 경로 설정
-                        IsChecked = false,
+                        Path = filePath,
+                        IsChecked = false, // 파일은 기본적으로 체크되지 않은 상태로 설정
                         IsFolder = false
                     });
                 }
             }
+
+            InnerFolderContentsListView.Items.Refresh(); // InnerFolderContents가 변경되었음을 UI에 알림
         }
+
+
+
+
+
+
+
+
         private void FolderContentsListView_Click(object sender, MouseButtonEventArgs e)
         {
             if (FolderContentsListView.SelectedItem is FileItem selectedItem && selectedItem.IsFolder)
@@ -439,8 +466,13 @@ namespace StardewValley_Mod_Manager
                 fileItem.ImageSource = new BitmapImage(new Uri(fileItem.IsChecked ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute));
                 FolderContentsListView.Items.Refresh();
                 InnerFolderContentsListView.Items.Refresh();
+
+                // IsChecked 상태를 config.xml에 저장
+                string folderName = FolderListView.SelectedItem.ToString();
+                ConfigManager.UpdateIsChecked(folderName, fileItem.Name, fileItem.IsChecked);
             }
         }
+
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -489,6 +521,22 @@ namespace StardewValley_Mod_Manager
                 FolderListView.Items.Add(folder);
             }
         }
+        //private void FolderListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (FolderListView.SelectedItem != null)
+        //    {
+        //        string selectedFolder = FolderListView.SelectedItem.ToString();
+        //        DisplayFolderContents(selectedFolder);
+        //        DisplayInnerFolderContents(selectedFolder);
+        //        allSelected = true;
+        //        foreach (var item in FolderContents)
+        //        {
+        //            item.IsChecked = allSelected;
+        //            item.ImageSource = new BitmapImage(new Uri(allSelected ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute));
+        //        }
+        //        FolderContentsListView.Items.Refresh();
+        //    }
+        //}
         private void FolderListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (FolderListView.SelectedItem != null)
@@ -496,15 +544,10 @@ namespace StardewValley_Mod_Manager
                 string selectedFolder = FolderListView.SelectedItem.ToString();
                 DisplayFolderContents(selectedFolder);
                 DisplayInnerFolderContents(selectedFolder);
-                allSelected = true;
-                foreach (var item in FolderContents)
-                {
-                    item.IsChecked = allSelected;
-                    item.ImageSource = new BitmapImage(new Uri(allSelected ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute));
-                }
                 FolderContentsListView.Items.Refresh();
             }
         }
+
         private void LoadFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -577,7 +620,7 @@ namespace StardewValley_Mod_Manager
             {
                 if (File.Exists(smapiExecutablePath))
                 {
-                    ShowOverlay();
+                    ShowOverlay("게임이 실행중입니다.");
                     var process = Process.Start(new ProcessStartInfo
                     {
                         FileName = smapiExecutablePath,
@@ -614,7 +657,7 @@ namespace StardewValley_Mod_Manager
                         return;
                     }
 
-                    ShowOverlay();
+                    ShowOverlay("게임이 실행중입니다.");
                     var process = Process.Start(new ProcessStartInfo
                     {
                         FileName = smapiExecutablePath,
@@ -647,7 +690,7 @@ namespace StardewValley_Mod_Manager
             {
                 if (File.Exists(stardewExecutablePath))
                 {
-                    ShowOverlay();
+                    ShowOverlay("게임이 실행중입니다.");
                     var process = Process.Start(new ProcessStartInfo
                     {
                         FileName = stardewExecutablePath,
@@ -680,6 +723,138 @@ namespace StardewValley_Mod_Manager
         {
             await CopyAndLinkAsync();
         }
+        //private async Task CopyAndLinkAsync()
+        //{
+        //    if (string.IsNullOrEmpty(smapiExecutablePath))
+        //    {
+        //        MessageBox.Show("SMAPI 경로가 설정되지 않았습니다. 설정에서 경로를 지정해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        return;
+        //    }
+
+        //    string smapiDirectory = Path.GetDirectoryName(smapiExecutablePath);
+
+        //    if (string.IsNullOrEmpty(smapiDirectory) || !Directory.Exists(smapiDirectory))
+        //    {
+        //        MessageBox.Show("SMAPI 경로가 올바르지 않습니다. 설정에서 경로를 확인해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        return;
+        //    }
+
+        //    string basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValleyModManager");
+        //    string tempPath = Path.Combine(basePath, "Modtemp");
+
+        //    if (Directory.Exists(tempPath))
+        //    {
+        //        // 디렉토리를 삭제하기 전에 모든 파일의 읽기 전용 속성을 해제
+        //        var directoryInfo = new DirectoryInfo(tempPath);
+        //        foreach (var file in directoryInfo.GetFiles("*", SearchOption.AllDirectories))
+        //        {
+        //            file.IsReadOnly = false;
+        //        }
+        //        Directory.Delete(tempPath, true);
+        //    }
+
+        //    Directory.CreateDirectory(tempPath);
+
+        //    if (FolderListView.SelectedItem == null)
+        //    {
+        //        MessageBox.Show("폴더를 선택해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        return;
+        //    }
+
+        //    string selectedFolder = FolderListView.SelectedItem.ToString();
+        //    var folderElement = ConfigManager.GetFolderElement(selectedFolder);
+        //    if (folderElement == null)
+        //    {
+        //        MessageBox.Show("선택된 폴더를 찾을 수 없습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        return;
+        //    }
+
+        //    var items = FolderContents.Where(f => f.IsChecked).ToList(); // 체크된 항목만 선택
+        //    int totalItems = items.Count;
+
+        //    // 프로그래스바 팝업 창 생성
+        //    var progressPopup = new ProgressPopup();
+        //    progressPopup.ProgressBar.Maximum = totalItems;
+        //    progressPopup.Show();
+
+        //    int itemIndex = 0;
+        //    foreach (var item in items)
+        //    {
+        //        if (progressPopup.IsCancelled)
+        //        {
+        //            MessageBox.Show("작업이 취소되었습니다.", "취소됨", MessageBoxButton.OK, MessageBoxImage.Information);
+        //            break;
+        //        }
+
+        //        // 'config.xml'에서 'Inner_Folder'의 'name'을 사용하여 경로를 찾기
+        //        var innerFolderElement = folderElement.Elements("Inner_Folder")
+        //                                              .FirstOrDefault(x => (string)x.Attribute("name") == item.Name);
+        //        if (innerFolderElement == null)
+        //        {
+        //            MessageBox.Show($"선택된 Inner_Folder를 찾을 수 없습니다: {item.Name}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            continue;
+        //        }
+
+        //        string sourcePath = (string)innerFolderElement.Attribute("path");
+        //        string destinationPath = Path.Combine(tempPath, item.Name);
+
+        //        if (!Directory.Exists(sourcePath))
+        //        {
+        //            MessageBox.Show($"소스 경로를 찾을 수 없습니다: {sourcePath}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            continue;
+        //        }
+
+        //        try
+        //        {
+        //            await Task.Run(() => DirectoryCopy(sourcePath, destinationPath, true));
+        //        }
+        //        catch (UnauthorizedAccessException ex)
+        //        {
+        //            MessageBox.Show($"접근 권한이 없습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            return;
+        //        }
+        //        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+        //        {
+        //            MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            return;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            MessageBox.Show($"오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            return;
+        //        }
+
+        //        itemIndex++;
+        //        progressPopup.UpdateProgress(itemIndex, totalItems);
+        //    }
+
+        //    progressPopup.Close();
+
+        //    if (!progressPopup.IsCancelled)
+        //    {
+        //        string modsPath = Path.Combine(smapiDirectory, "Mods");
+        //        if (Directory.Exists(modsPath))
+        //        {
+        //            // 디렉토리를 삭제하기 전에 모든 파일의 읽기 전용 속성을 해제
+        //            var modsDirectoryInfo = new DirectoryInfo(modsPath);
+        //            foreach (var file in modsDirectoryInfo.GetFiles("*", SearchOption.AllDirectories))
+        //            {
+        //                file.IsReadOnly = false;
+        //            }
+        //            Directory.Delete(modsPath, true);
+        //        }
+
+        //        bool success = CreateSymbolicLink(modsPath, tempPath, SymbolicLink.Directory);
+        //        if (!success)
+        //        {
+        //            MessageBox.Show("심볼릭 링크 생성에 실패했습니다. 관리자 권한이 필요할 수 있습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        }
+        //        else
+        //        {
+        //            RunMods();
+        //        }
+        //    }
+        //}
         private async Task CopyAndLinkAsync()
         {
             if (string.IsNullOrEmpty(smapiExecutablePath))
@@ -698,8 +873,15 @@ namespace StardewValley_Mod_Manager
 
             string basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValleyModManager");
             string tempPath = Path.Combine(basePath, "Modtemp");
+
             if (Directory.Exists(tempPath))
             {
+                // 디렉토리를 삭제하기 전에 모든 파일의 읽기 전용 속성을 해제
+                var directoryInfo = new DirectoryInfo(tempPath);
+                foreach (var file in directoryInfo.GetFiles("*", SearchOption.AllDirectories))
+                {
+                    file.IsReadOnly = false;
+                }
                 Directory.Delete(tempPath, true);
             }
 
@@ -754,7 +936,25 @@ namespace StardewValley_Mod_Manager
                     continue;
                 }
 
-                await Task.Run(() => DirectoryCopy(sourcePath, destinationPath, true));
+                try
+                {
+                    await Task.Run(() => DirectoryCopy(sourcePath, destinationPath, true));
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    MessageBox.Show($"접근 권한이 없습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                {
+                    MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
                 itemIndex++;
                 progressPopup.UpdateProgress(itemIndex, totalItems);
@@ -765,9 +965,30 @@ namespace StardewValley_Mod_Manager
             if (!progressPopup.IsCancelled)
             {
                 string modsPath = Path.Combine(smapiDirectory, "Mods");
-                if (Directory.Exists(modsPath))
+                if (ConfigManager.IsFirstRun())
                 {
-                    Directory.Delete(modsPath, true);
+                    // 최초 실행 시 Mods 폴더를 ModsBackup으로 이름 변경
+                    string backupFolderPath = Path.Combine(smapiDirectory, "ModsBackup");
+                    if (Directory.Exists(modsPath))
+                    {
+                        Directory.Move(modsPath, backupFolderPath);
+                    }
+
+                    // 최초 실행 완료로 표시
+                    ConfigManager.SetFirstRun();
+                }
+                else
+                {
+                    if (Directory.Exists(modsPath))
+                    {
+                        // 디렉토리를 삭제하기 전에 모든 파일의 읽기 전용 속성을 해제
+                        var modsDirectoryInfo = new DirectoryInfo(modsPath);
+                        foreach (var file in modsDirectoryInfo.GetFiles("*", SearchOption.AllDirectories))
+                        {
+                            file.IsReadOnly = false;
+                        }
+                        Directory.Delete(modsPath, true);
+                    }
                 }
 
                 bool success = CreateSymbolicLink(modsPath, tempPath, SymbolicLink.Directory);
@@ -781,6 +1002,7 @@ namespace StardewValley_Mod_Manager
                 }
             }
         }
+
         private void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
@@ -811,9 +1033,14 @@ namespace StardewValley_Mod_Manager
             {
                 item.IsChecked = allSelected;
                 item.ImageSource = new BitmapImage(new Uri(allSelected ? "/Resources/Checkboxcheck.png" : "/Resources/Checkbox.png", UriKind.RelativeOrAbsolute));
+
+                // IsChecked 상태를 config.xml에 저장
+                string folderName = FolderListView.SelectedItem.ToString();
+                ConfigManager.UpdateIsChecked(folderName, item.Name, item.IsChecked);
             }
             FolderContentsListView.Items.Refresh();
         }
+
         private async Task MonitorProcessAsync(Process process)
         {
             await Task.Run(() =>
@@ -912,16 +1139,19 @@ namespace StardewValley_Mod_Manager
                 }
             }
         }
-        private void ShowOverlay()
+        private void ShowOverlay(string message)
         {
+            LaunchedGame.Text = message; // 전달된 메시지로 텍스트 업데이트
             OverlayGrid.Visibility = Visibility.Visible;
             MainGrid.Effect = new BlurEffect { Radius = 10 };
         }
+
         private void HideOverlay()
         {
             OverlayGrid.Visibility = Visibility.Collapsed;
             MainGrid.Effect = null;
         }
+
         public class FileItem
         {
             public string Name { get; set; }
@@ -933,13 +1163,14 @@ namespace StardewValley_Mod_Manager
             public string LatestVersion { get; set; }
             public string UniqueID { get; set; }
             public string UpdateKey { get; set; } // 새로운 속성 추가
+            public bool IsUpdateCheckEnabled { get; set; }
         }
         // 새로운 메소드: 모드 버전 업데이트 확인
         private async void CheckForUpdatesButton_Click(object sender, RoutedEventArgs e)
         {
             foreach (var item in FolderContents)
             {
-                if (!string.IsNullOrEmpty(item.UpdateKey))
+                if (!string.IsNullOrEmpty(item.UpdateKey) && !string.IsNullOrEmpty(item.CurrentVersion) && item.UpdateKey != "-1" && item.UpdateKey != "???")
                 {
                     item.LatestVersion = await api.GetLatestModVersionAsync(item.UpdateKey);
                     if (item.CurrentVersion != item.LatestVersion)
@@ -948,11 +1179,18 @@ namespace StardewValley_Mod_Manager
                         if (result == MessageBoxResult.Yes)
                         {
                             // 다운로드 및 업데이트 로직 구현
+                            string url = $"https://www.nexusmods.com/stardewvalley/mods/{item.UpdateKey}";
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = url,
+                                UseShellExecute = true
+                            });
                         }
                     }
                 }
             }
         }
+
         private bool IsConfigFileEmpty()
         {
             try
@@ -965,6 +1203,217 @@ namespace StardewValley_Mod_Manager
                 return true;
             }
         }
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 설정에서 시작 시 업데이트 확인 여부를 읽어옴
+            bool startUpUpdateCheck = bool.Parse(ConfigManager.ReadSetting("StartUpUpdateCheck") ?? "false");
+
+            if (startUpUpdateCheck)
+            {
+                await CheckAllFoldersForUpdatesAsync();
+            }
+            else
+            {
+                // 업데이트 확인을 건너뛰지만 기존의 LatestVersion 값은 유지
+                var allFolders = ConfigManager.GetAllFolders();
+                foreach (var folderElement in allFolders)
+                {
+                    var innerFolders = folderElement.Elements("Inner_Folder");
+                    foreach (var innerFolder in innerFolders)
+                    {
+                        var fileItem = new FileItem
+                        {
+                            Name = innerFolder.Attribute("name")?.Value,
+                            CurrentVersion = innerFolder.Attribute("version")?.Value,
+                            UpdateKey = innerFolder.Attribute("UpdateKey")?.Value,
+                            LatestVersion = innerFolder.Attribute("LatestVersion")?.Value
+                        };
+
+                        // FolderContents에 추가하거나 적절한 UI 갱신 로직을 구현하세요
+                    }
+                }
+            }
+        }
+
+        //private async Task CheckAllFoldersForUpdatesAsync()
+        //{
+        //    var allFolders = ConfigManager.GetAllFolders();
+        //    int totalItems = allFolders.Count;
+
+        //    ShowOverlay("업데이트를 확인 중입니다..."); // 메시지를 전달하여 오버레이 표시
+        //    var progressPopup = new ProgressPopup();
+        //    progressPopup.UpdateProgress(0, totalItems); // 프로그래스 바 초기화
+        //    progressPopup.Show();
+
+        //    int itemIndex = 0;
+        //    foreach (var folderElement in allFolders)
+        //    {
+        //        var folderName = folderElement.Attribute("name")?.Value;
+        //        var innerFolders = folderElement.Elements("Inner_Folder");
+
+        //        foreach (var innerFolder in innerFolders)
+        //        {
+        //            var fileItem = new FileItem
+        //            {
+        //                Name = innerFolder.Attribute("name").Value,
+        //                CurrentVersion = innerFolder.Attribute("version")?.Value,
+        //                UpdateKey = innerFolder.Attribute("UpdateKey")?.Value
+        //            };
+
+        //            try
+        //            {
+        //                // LatestVersion을 API에서 받아오기
+        //                if (!string.IsNullOrEmpty(fileItem.UpdateKey) && !string.IsNullOrEmpty(fileItem.CurrentVersion) && fileItem.UpdateKey != "-1" && fileItem.UpdateKey != "???")
+        //                {
+        //                    await Task.Delay(500); // 여유시간 추가
+        //                    string latestVersion = await api.GetLatestModVersionAsync(fileItem.UpdateKey);
+        //                    fileItem.LatestVersion = latestVersion ?? "버전정보없음";
+
+        //                    // 업데이트된 정보를 innerFolder에 저장
+        //                    var latestVersionAttr = innerFolder.Attribute("LatestVersion");
+        //                    if (latestVersionAttr == null)
+        //                    {
+        //                        innerFolder.Add(new XAttribute("LatestVersion", fileItem.LatestVersion));
+        //                    }
+        //                    else
+        //                    {
+        //                        latestVersionAttr.Value = fileItem.LatestVersion;
+        //                    }
+
+        //                    // 변경된 innerFolder를 저장
+        //                    ConfigManager.SaveFolder(folderName, folderElement.Attribute("path").Value, innerFolder);
+        //                }
+        //                else
+        //                {
+        //                    fileItem.LatestVersion = "버전정보없음";
+        //                }
+        //            }
+        //            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+        //            {
+        //                fileItem.LatestVersion = "버전정보없음";
+        //            }
+        //            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        //            {
+        //                fileItem.LatestVersion = "버전정보없음";
+        //                MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                MessageBox.Show($"오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            }
+        //        }
+
+        //        itemIndex++;
+        //        progressPopup.UpdateProgress(itemIndex, totalItems);
+
+        //        if (progressPopup.IsCancelled)
+        //        {
+        //            MessageBox.Show("작업이 취소되었습니다.", "취소됨", MessageBoxButton.OK, MessageBoxImage.Information);
+        //            break;
+        //        }
+        //    }
+
+        //    progressPopup.Close();
+        //    HideOverlay(); // 작업 완료 후 오버레이 제거
+        //    if (FolderListView.SelectedItem != null)
+        //    {
+        //        string selectedFolder = FolderListView.SelectedItem.ToString();
+        //        DisplayFolderContents(selectedFolder);
+        //    }
+        //}
+        private async Task CheckAllFoldersForUpdatesAsync()
+        {
+            var allFolders = ConfigManager.GetAllFolders();
+            int totalItems = allFolders.Sum(f => f.Elements("Inner_Folder").Count()); // 모든 Inner_Folder 요소의 개수를 계산
+
+            ShowOverlay("업데이트를 확인 중입니다..."); // 메시지를 전달하여 오버레이 표시
+            var progressPopup = new ProgressPopup();
+            progressPopup.UpdateProgress(0, totalItems); // 프로그래스 바 초기화
+            progressPopup.Show();
+
+            int itemIndex = 0;
+            foreach (var folderElement in allFolders)
+            {
+                var folderName = folderElement.Attribute("name")?.Value;
+                var innerFolders = folderElement.Elements("Inner_Folder");
+
+                foreach (var innerFolder in innerFolders)
+                {
+                    var fileItem = new FileItem
+                    {
+                        Name = innerFolder.Attribute("name").Value,
+                        CurrentVersion = innerFolder.Attribute("version")?.Value,
+                        UpdateKey = innerFolder.Attribute("UpdateKey")?.Value
+                    };
+
+                    try
+                    {
+                        // LatestVersion을 API에서 받아오기
+                        if (!string.IsNullOrEmpty(fileItem.UpdateKey) && !string.IsNullOrEmpty(fileItem.CurrentVersion) && fileItem.UpdateKey != "-1" && fileItem.UpdateKey != "???")
+                        {
+                            await Task.Delay(500); // 여유시간 추가
+                            string latestVersion = await api.GetLatestModVersionAsync(fileItem.UpdateKey);
+                            fileItem.LatestVersion = latestVersion ?? "버전정보없음";
+
+                            // 업데이트된 정보를 innerFolder에 저장
+                            var latestVersionAttr = innerFolder.Attribute("LatestVersion");
+                            if (latestVersionAttr == null)
+                            {
+                                innerFolder.Add(new XAttribute("LatestVersion", fileItem.LatestVersion));
+                            }
+                            else
+                            {
+                                latestVersionAttr.Value = fileItem.LatestVersion;
+                            }
+                            ConfigManager.SaveFolder(folderName, folderElement.Attribute("path").Value, innerFolder);
+                        }
+                        else
+                        {
+                            fileItem.LatestVersion = "버전정보없음";
+                        }
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                    {
+                        fileItem.LatestVersion = "버전정보없음";
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        fileItem.LatestVersion = "버전정보없음";
+                        MessageBox.Show("잠시 후 다시 시도해 주세요", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+
+                    itemIndex++;
+                    progressPopup.UpdateProgress(itemIndex, totalItems);
+
+                    if (progressPopup.IsCancelled)
+                    {
+                        MessageBox.Show("작업이 취소되었습니다.", "취소됨", MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
+                    }
+                }
+            }
+
+            progressPopup.Close();
+            HideOverlay(); // 작업 완료 후 오버레이 제거
+            if (FolderListView.SelectedItem != null)
+            {
+                string selectedFolder = FolderListView.SelectedItem.ToString();
+                DisplayFolderContents(selectedFolder);
+            }
+        }
+
+
+
+
+
+
+
+
+
 
         #region 심볼릭 링크 플래그와 Enum
         [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]

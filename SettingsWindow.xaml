@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:StardewValley_Mod_Manager"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="SettingsWindow" Height="200" Width="550">
+        Title="SettingsWindow" Height="250" Width="550">
 
     <Window.Resources>
         <Style TargetType="Label" BasedOn="{StaticResource BaseLabelStyle}">
@@ -24,25 +24,26 @@
         <Style TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
             <Setter Property="FontWeight" Value="Normal" />
         </Style>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource BaseCheckBoxStyle}">
+            <Setter Property="FontWeight" Value="Normal" />
+        </Style>
     </Window.Resources>
-    
+
     <Grid>
-        <!-- 기존 UI 요소들 -->
+        <Label Content="스타듀밸리 경로 :" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Height="37" Width="122" FontWeight="Bold" FontSize="17"/>
+        <TextBox Name="SmapiPathTextBox" HorizontalAlignment="Left" Margin="130,10,0,0" VerticalAlignment="Top" Width="300"/>
+        <Button Content="찾아보기" HorizontalAlignment="Left" Margin="450,10,0,0" VerticalAlignment="Top" Width="75" Click="SmapiBrowseButton_Click"/>
 
-        <Label Content="스타듀밸리 경로 :" HorizontalAlignment="Left" Margin="0,43,0,0" VerticalAlignment="Top" Height="37" Width="122" FontWeight="Bold" FontSize="17"/>
-        <TextBox Name="SmapiPathTextBox" HorizontalAlignment="Left" Margin="130,43,0,0" VerticalAlignment="Top" Width="300"/>
-        <Button Content="찾아보기" HorizontalAlignment="Left" Margin="450,43,0,0" VerticalAlignment="Top" Width="75" Click="SmapiBrowseButton_Click"/>
-
-        <!-- 폰트 설정 UI 요소들 -->
-        <Label Content="폰트 선택 :" HorizontalAlignment="Left" Margin="0,100,0,0" VerticalAlignment="Top" Height="37" Width="122" FontWeight="Bold" FontSize="17"/>
-        <ComboBox Name="FontComboBox" HorizontalAlignment="Left" Margin="130,100,0,0" VerticalAlignment="Top" Width="300">
+        <Label Content="폰트 선택 :" HorizontalAlignment="Left" Margin="0,55,0,0" VerticalAlignment="Top" Height="37" Width="122" FontWeight="Bold" FontSize="17"/>
+        <ComboBox Name="FontComboBox" HorizontalAlignment="Left" Margin="130,55,0,0" VerticalAlignment="Top" Width="300">
             <ComboBoxItem Content="Sandoll 미생" Tag="F_SDMisaeng"/>
             <ComboBoxItem Content="Noto Sans JP Thin" Tag="F_NSJ"/>
             <ComboBoxItem Content="Noto Sans KR Thin" Tag="F_NSK"/>
             <ComboBoxItem Content="Noto Sans SC Thin" Tag="F_NSSC"/>
             <ComboBoxItem Content="Noto Sans Thin" Tag="F_NSV"/>
         </ComboBox>
-        
+
+        <CheckBox Name="UpdateCheckBox" Content="시작 시 업데이트 확인" Margin="10,100,10,0" VerticalAlignment="Top"/>
 
         <Button Content="확인" HorizontalAlignment="Center" Margin="-100,0,0,5" VerticalAlignment="Bottom" Width="75" Click="OkButton_Click"/>
         <Button Content="취소" HorizontalAlignment="Center" Margin="100,0,0,5" VerticalAlignment="Bottom" Width="75" Click="CancelButton_Click"/>

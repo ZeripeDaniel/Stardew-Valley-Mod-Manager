@@ -34,6 +34,7 @@
 	<ItemGroup>
 	  <None Remove="Resources\bigDeSelect.wav" />
 	  <None Remove="Resources\bigSelect.wav" />
+	  <None Remove="Resources\chick.gif" />
 	  <None Remove="Resources\Cowboy_Footstep.wav" />
 	  <None Remove="Resources\junimo.wav" />
 	  <None Remove="Resources\Leaf.wav" />
@@ -44,6 +45,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="Resources\chick.gif" />
 	  <Resource Include="Resources\Leaf.wav" />
 	</ItemGroup>
 
@@ -83,6 +85,7 @@
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
+		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>

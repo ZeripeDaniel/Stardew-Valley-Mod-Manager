@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+#pragma warning disable CS8603
 
 namespace StardewValley_Mod_Manager
 {
@@ -67,10 +68,10 @@ namespace StardewValley_Mod_Manager
             var url = $"https://api.nexusmods.com/v1/games/{_gameDomainName}/mods/{modId}.json";
             var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            LogApiResponse($"GetLatestModVersion_{modId}", jsonResponse, response.Headers);
-            var latestVersion = JObject.Parse(jsonResponse)["version"]?.ToString();
+            var json = await response.Content.ReadAsStringAsync();
+            var latestVersion = JObject.Parse(json)["version"]?.ToString();
             return latestVersion;
         }
+
     }
 }

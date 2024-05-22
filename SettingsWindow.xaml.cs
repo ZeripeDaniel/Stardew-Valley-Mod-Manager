@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 #pragma warning disable CS8618
 #pragma warning disable CS8601
@@ -46,6 +45,9 @@ namespace StardewValley_Mod_Manager
                     }
                 }
             }
+
+            // 시작 시 업데이트 확인 설정 읽기
+            UpdateCheckBox.IsChecked = bool.Parse(ConfigManager.ReadSetting("StartUpUpdateCheck") ?? "false");
         }
 
         private void SmapiBrowseButton_Click(object sender, RoutedEventArgs e)
@@ -58,41 +60,6 @@ namespace StardewValley_Mod_Manager
             }
         }
 
-        //private void OkButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SmapiPath = SmapiPathTextBox.Text;
-        //    SelectedFontResourceKey = ((ComboBoxItem)FontComboBox.SelectedItem).Tag.ToString();
-
-        //    ConfigManager.WriteSetting("SmapiPath", SmapiPath);
-        //    ConfigManager.WriteSetting("SelectedFont", SelectedFontResourceKey);
-
-        //    DialogResult = true;
-        //    Close();
-        //}
-        //private void OkButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (string.IsNullOrWhiteSpace(SmapiPathTextBox.Text))
-        //    {
-        //        MessageBox.Show("SMAPi 경로를 설정해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        return;
-        //    }
-
-        //    SmapiPath = SmapiPathTextBox.Text;
-
-        //    if (FontComboBox.SelectedItem == null || ((ComboBoxItem)FontComboBox.SelectedItem).Tag == null)
-        //    {
-        //        MessageBox.Show("폰트를 선택해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        return;
-        //    }
-
-        //    SelectedFontResourceKey = ((ComboBoxItem)FontComboBox.SelectedItem).Tag.ToString();
-
-        //    ConfigManager.WriteSetting("SmapiPath", SmapiPath);
-        //    ConfigManager.WriteSetting("SelectedFont", SelectedFontResourceKey);
-
-        //    DialogResult = true;
-        //    Close();
-        //}
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
             // SMAPi 경로가 비어 있는지 확인하고 비어 있으면 오류 메시지를 표시하고 리턴
@@ -117,6 +84,10 @@ namespace StardewValley_Mod_Manager
             // 설정값을 ConfigManager를 통해 저장
             ConfigManager.WriteSetting("SmapiPath", SmapiPath);
             ConfigManager.WriteSetting("SelectedFont", SelectedFontResourceKey);
+
+            // "시작 시 업데이트 확인" 설정 저장
+            bool startUpUpdateCheck = (bool)UpdateCheckBox.IsChecked;
+            ConfigManager.WriteSetting("StartUpUpdateCheck", startUpUpdateCheck.ToString());
 
             DialogResult = true;
             Close();

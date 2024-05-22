@@ -22,6 +22,17 @@ namespace StardewValley_Mod_Manager
 
             base.OnStartup(e);
 
+            if (ConfigManager.IsFirstRun())
+            {
+                // 최초 실행 시 필요한 작업 수행
+                MessageBox.Show("프로그램을 처음 실행했습니다. 초기 설정을 진행합니다. 이 창은 모드로 게임을 실행하기 전까지 계속 실행됩니다.", "환영합니다", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // 최초 실행이 완료되었음을 표시하는 파일 생성
+                //ConfigManager.SetFirstRun();
+            }
+            //string modsFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "Mods");
+            //ConfigManager.CheckAndBackupModsFolder(modsFolderPath);
+
             string fontSetting = ConfigManager.ReadSetting("SelectedFont");
             if (!string.IsNullOrEmpty(fontSetting))
             {
@@ -119,6 +130,14 @@ namespace StardewValley_Mod_Manager
                 {
                     new Setter(ListViewItem.FontFamilyProperty, fontFamily)
                 }
+            };
+            Application.Current.Resources["BaseCheckBoxStyle"] = new Style(typeof(CheckBox))
+            {
+                BasedOn = (Style)Application.Current.Resources["BaseCheckBoxStyle"],
+                Setters =
+        {
+            new Setter(CheckBox.FontFamilyProperty, fontFamily)
+        }
             };
         }
     }
