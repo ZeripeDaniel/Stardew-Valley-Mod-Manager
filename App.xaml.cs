@@ -9,6 +9,8 @@ using System.Windows.Media;
 using System.Windows;
 using System.IO;
 
+#pragma warning disable CS8604
+
 namespace StardewValley_Mod_Manager
 {
     public partial class App : Application

@@ -6,6 +6,18 @@ using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 
+#pragma warning disable CS8600
+#pragma warning disable CS8618
+#pragma warning disable CS8601
+#pragma warning disable CS8602
+#pragma warning disable CS8603
+#pragma warning disable CS8604
+#pragma warning disable CS8605
+#pragma warning disable CS8606
+#pragma warning disable CS8607
+#pragma warning disable CS8608
+#pragma warning disable CS8609
+
 namespace StardewValley_Mod_Manager
 {
     public static class ConfigManager

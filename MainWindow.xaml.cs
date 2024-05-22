@@ -15,6 +15,18 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 
+#pragma warning disable CS8618
+#pragma warning disable CS8600
+#pragma warning disable CS8601
+#pragma warning disable CS8602
+#pragma warning disable CS8603
+#pragma warning disable CS8604
+#pragma warning disable CS8605
+#pragma warning disable CS8606
+#pragma warning disable CS8607
+#pragma warning disable CS8608
+#pragma warning disable CS8609
+
 namespace StardewValley_Mod_Manager
 {
     public partial class MainWindow : Window
@@ -45,6 +57,7 @@ namespace StardewValley_Mod_Manager
         /// 전체 선택 상태
         /// </summary>
         private bool allSelected = true;
+        #region 초기화
         public MainWindow()
         {
             InitializeComponent();
@@ -81,83 +94,7 @@ namespace StardewValley_Mod_Manager
             }
             FolderContentsListView.Items.Refresh();
         }
-        public void ApplyFont(FontFamily? fontFamily = null)
-        {
-            if (fontFamily == null)
-            {
-                string fontSetting = ConfigManager.ReadSetting("SelectedFont");
-                if (!string.IsNullOrEmpty(fontSetting) && Application.Current.Resources.Contains(fontSetting))
-                {
-                    fontFamily = (FontFamily)Application.Current.Resources[fontSetting];
-                }
-            }
-
-            if (fontFamily != null)
-            {
-                Resources["BaseLabelStyle"] = new Style(typeof(Label))
-                {
-                    BasedOn = (Style)Application.Current.Resources["BaseLabelStyle"],
-                    Setters =
-                    {
-                        new Setter(Label.FontFamilyProperty, fontFamily)
-                    }
-                };
-
-                Resources["BaseTextBlockStyle"] = new Style(typeof(TextBlock))
-                {
-                    BasedOn = (Style)Application.Current.Resources["BaseTextBlockStyle"],
-                    Setters =
-                    {
-                        new Setter(TextBlock.FontFamilyProperty, fontFamily)
-                    }
-                };
-
-                Resources["BaseTextBoxStyle"] = new Style(typeof(TextBox))
-                {
-                    BasedOn = (Style)Application.Current.Resources["BaseTextBoxStyle"],
-                    Setters =
-                    {
-                        new Setter(TextBox.FontFamilyProperty, fontFamily)
-                    }
-                };
-
-                Resources["BaseComboBoxStyle"] = new Style(typeof(ComboBox))
-                {
-                    BasedOn = (Style)Application.Current.Resources["BaseComboBoxStyle"],
-                    Setters =
-                    {
-                        new Setter(ComboBox.FontFamilyProperty, fontFamily)
-                    }
-                };
-
-                Resources["BaseButtonStyle"] = new Style(typeof(Button))
-                {
-                    BasedOn = (Style)Application.Current.Resources["BaseButtonStyle"],
-                    Setters =
-                    {
-                        new Setter(Button.FontFamilyProperty, fontFamily)
-                    }
-                };
-
-                Resources["BaseListViewStyle"] = new Style(typeof(ListView))
-                {
-                    BasedOn = (Style)Application.Current.Resources["BaseListViewStyle"],
-                    Setters =
-                    {
-                        new Setter(ListView.FontFamilyProperty, fontFamily)
-                    }
-                };
-
-                Resources["BaseListViewItemStyle"] = new Style(typeof(ListViewItem))
-                {
-                    BasedOn = (Style)Application.Current.Resources["BaseListViewItemStyle"],
-                    Setters =
-                    {
-                        new Setter(ListViewItem.FontFamilyProperty, fontFamily)
-                    }
-                };
-            }
-        }
+        #endregion
         private void Button_MouseEnter(object sender, MouseEventArgs e)
         {
             Cowboy.Play();
@@ -300,19 +237,6 @@ namespace StardewValley_Mod_Manager
                 ConfigManager.LogException(ex);
             }
         }
-
-        private bool IsConfigFileEmpty()
-        {
-            try
-            {
-                var doc = XDocument.Load(ConfigManager.ConfigFilePath);
-                return doc.Root == null || !doc.Root.HasElements;
-            }
-            catch
-            {
-                return true;
-            }
-        }
         private void SaveConfig(string key, string value)
         {
             ConfigManager.WriteSetting(key, value);
@@ -437,7 +361,6 @@ namespace StardewValley_Mod_Manager
                 }
             }
         }
-
         private XElement FindFolderElement(XElement parentElement, string folderName, string topfolderName)
         {
             foreach (var folderElement in parentElement.Elements("Inner_Folder"))
@@ -451,7 +374,6 @@ namespace StardewValley_Mod_Manager
             }
             return null;
         }
-
         private XElement FindFolderElementRecursive(XElement parentElement, string folderName)
         {
             foreach (var folderElement in parentElement.Elements("Inner_Folder"))
@@ -470,7 +392,6 @@ namespace StardewValley_Mod_Manager
             }
             return null;
         }
-
         private void Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
@@ -480,14 +401,6 @@ namespace StardewValley_Mod_Manager
                 FolderContentsListView.Items.Refresh();
                 InnerFolderContentsListView.Items.Refresh();
             }
-        }
-        public class FileItem
-        {
-            public string Name { get; set; }
-            public string Path { get; set; }
-            public bool IsChecked { get; set; }
-            public bool IsFolder { get; set; }
-            public BitmapImage ImageSource { get; set; }
         }
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
@@ -724,17 +637,6 @@ namespace StardewValley_Mod_Manager
             ApplyFontSize();
             ConfigManager.WriteSetting("FontSizeIndex", FontSizeComboBox.SelectedIndex);
         }
-        private void ApplyFontSize()
-        {
-            if (FontSizeComboBox.SelectedItem is ComboBoxItem selectedItem)
-            {
-                if (double.TryParse(selectedItem.Tag.ToString(), out double fontSize))
-                {
-                    FolderContentsListView.FontSize = fontSize;
-                    InnerFolderContentsListView.FontSize = fontSize;
-                }
-            }
-        }
         private async void CopyAndLinkButton_Click(object sender, RoutedEventArgs e)
         {
             await CopyAndLinkAsync();
@@ -883,7 +785,94 @@ namespace StardewValley_Mod_Manager
             // 프로세스가 종료되면 UI 스레드에서 Overlay를 숨깁니다.
             Dispatcher.Invoke(() => HideOverlay());
         }
+        public void ApplyFont(FontFamily? fontFamily = null)
+        {
+            if (fontFamily == null)
+            {
+                string fontSetting = ConfigManager.ReadSetting("SelectedFont");
+                if (!string.IsNullOrEmpty(fontSetting) && Application.Current.Resources.Contains(fontSetting))
+                {
+                    fontFamily = (FontFamily)Application.Current.Resources[fontSetting];
+                }
+            }
 
+            if (fontFamily != null)
+            {
+                Resources["BaseLabelStyle"] = new Style(typeof(Label))
+                {
+                    BasedOn = (Style)Application.Current.Resources["BaseLabelStyle"],
+                    Setters =
+                    {
+                        new Setter(Label.FontFamilyProperty, fontFamily)
+                    }
+                };
+
+                Resources["BaseTextBlockStyle"] = new Style(typeof(TextBlock))
+                {
+                    BasedOn = (Style)Application.Current.Resources["BaseTextBlockStyle"],
+                    Setters =
+                    {
+                        new Setter(TextBlock.FontFamilyProperty, fontFamily)
+                    }
+                };
+
+                Resources["BaseTextBoxStyle"] = new Style(typeof(TextBox))
+                {
+                    BasedOn = (Style)Application.Current.Resources["BaseTextBoxStyle"],
+                    Setters =
+                    {
+                        new Setter(TextBox.FontFamilyProperty, fontFamily)
+                    }
+                };
+
+                Resources["BaseComboBoxStyle"] = new Style(typeof(ComboBox))
+                {
+                    BasedOn = (Style)Application.Current.Resources["BaseComboBoxStyle"],
+                    Setters =
+                    {
+                        new Setter(ComboBox.FontFamilyProperty, fontFamily)
+                    }
+                };
+
+                Resources["BaseButtonStyle"] = new Style(typeof(Button))
+                {
+                    BasedOn = (Style)Application.Current.Resources["BaseButtonStyle"],
+                    Setters =
+                    {
+                        new Setter(Button.FontFamilyProperty, fontFamily)
+                    }
+                };
+
+                Resources["BaseListViewStyle"] = new Style(typeof(ListView))
+                {
+                    BasedOn = (Style)Application.Current.Resources["BaseListViewStyle"],
+                    Setters =
+                    {
+                        new Setter(ListView.FontFamilyProperty, fontFamily)
+                    }
+                };
+
+                Resources["BaseListViewItemStyle"] = new Style(typeof(ListViewItem))
+                {
+                    BasedOn = (Style)Application.Current.Resources["BaseListViewItemStyle"],
+                    Setters =
+                    {
+                        new Setter(ListViewItem.FontFamilyProperty, fontFamily)
+                    }
+                };
+            }
+        }
+        private void ApplyFontSize()
+        {
+            if (FontSizeComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                if (double.TryParse(selectedItem.Tag.ToString(), out double fontSize))
+                {
+                    FolderContentsListView.FontSize = fontSize;
+                    InnerFolderContentsListView.FontSize = fontSize;
+                }
+            }
+        }
         private void ShowOverlay()
         {
             OverlayGrid.Visibility = Visibility.Visible;
@@ -893,6 +882,26 @@ namespace StardewValley_Mod_Manager
         {
             OverlayGrid.Visibility = Visibility.Collapsed;
             MainGrid.Effect = null;
+        }
+        public class FileItem
+        {
+            public string Name { get; set; }
+            public string Path { get; set; }
+            public bool IsChecked { get; set; }
+            public bool IsFolder { get; set; }
+            public BitmapImage ImageSource { get; set; }
+        }
+        private bool IsConfigFileEmpty()
+        {
+            try
+            {
+                var doc = XDocument.Load(ConfigManager.ConfigFilePath);
+                return doc.Root == null || !doc.Root.HasElements;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         #region 심볼릭 링크 플래그와 Enum
