@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:StardewValley_Mod_Manager"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="SettingsWindow" Height="250" Width="550">
+        Title="SettingsWindow" Height="250" Width="550" Icon="/Resources/SMMImage.ico">
 
     <Window.Resources>
         <Style TargetType="Label" BasedOn="{StaticResource BaseLabelStyle}">

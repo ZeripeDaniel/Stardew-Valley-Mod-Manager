@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StardewValley_Mod_Manager"
         mc:Ignorable="d"
-        Title="Credit" Height="600" Width="400" ResizeMode="NoResize" Icon="/Resources/ico.ico" Background="{x:Null}" AllowsTransparency="True" WindowStyle="None"
+        Title="Credit" Height="600" Width="400" ResizeMode="NoResize" Icon="/Resources/SMMImage.ico" Background="{x:Null}" AllowsTransparency="True" WindowStyle="None"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <!-- 버튼 스타일 정의 -->

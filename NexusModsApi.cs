@@ -22,7 +22,7 @@ namespace StardewValley_Mod_Manager
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Add("apikey", _apiKey);
             _client.DefaultRequestHeaders.Add("Application-Name", "StardewValleyModManager");
-            _client.DefaultRequestHeaders.Add("Application-Version", "0.0.1");
+            _client.DefaultRequestHeaders.Add("Application-Version", "0.0.2");
         }
 
         private void EnsureApiLogDirectory()

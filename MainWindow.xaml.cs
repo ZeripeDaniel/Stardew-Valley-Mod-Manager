@@ -1168,17 +1168,54 @@ namespace StardewValley_Mod_Manager
         // 새로운 메소드: 모드 버전 업데이트 확인
         private async void CheckForUpdatesButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in FolderContents)
+            // 오버레이 표시
+            ShowOverlay("업데이트 확인 중...");
+
+            var updatesAvailable = new List<string>();
+            var itemsToUpdate = FolderContents.Where(item => !string.IsNullOrEmpty(item.UpdateKey)
+                                                              && !string.IsNullOrEmpty(item.CurrentVersion)
+                                                              && item.UpdateKey != "-1"
+                                                              && item.UpdateKey != "???").ToList();
+
+            int totalItems = itemsToUpdate.Count;
+
+            // 프로그래스바 팝업 창 생성
+            var progressPopup = new ProgressPopup();
+            progressPopup.ProgressBar.Maximum = totalItems;
+            progressPopup.Show();
+
+            int itemIndex = 0;
+            foreach (var item in itemsToUpdate)
             {
-                if (!string.IsNullOrEmpty(item.UpdateKey) && !string.IsNullOrEmpty(item.CurrentVersion) && item.UpdateKey != "-1" && item.UpdateKey != "???")
+                if (progressPopup.IsCancelled)
                 {
-                    item.LatestVersion = await api.GetLatestModVersionAsync(item.UpdateKey);
-                    if (item.CurrentVersion != item.LatestVersion)
+                    MessageBox.Show("업데이트 확인이 취소되었습니다.", "취소됨", MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
+                }
+
+                item.LatestVersion = await api.GetLatestModVersionAsync(item.UpdateKey);
+                if (item.CurrentVersion != item.LatestVersion)
+                {
+                    updatesAvailable.Add(item.Name);
+                }
+
+                itemIndex++;
+                progressPopup.UpdateProgress(itemIndex, totalItems);
+            }
+
+            progressPopup.Close();
+            HideOverlay();
+
+            if (!progressPopup.IsCancelled && updatesAvailable.Count > 0)
+            {
+                var result = MessageBox.Show($"{string.Join(", ", updatesAvailable)}에 새로운 버전이 있습니다! 지금 다운로드할까요?", "Update Available", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    // 다운로드 및 업데이트 로직 구현
+                    foreach (var item in FolderContents)
                     {
-                        var result = MessageBox.Show($"{item.Name} 새로운 버전이 있습니다! 지금 다운로드할까욘?", "Update Available", MessageBoxButton.YesNo);
-                        if (result == MessageBoxResult.Yes)
+                        if (updatesAvailable.Contains(item.Name))
                         {
-                            // 다운로드 및 업데이트 로직 구현
                             string url = $"https://www.nexusmods.com/stardewvalley/mods/{item.UpdateKey}";
                             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                             {
@@ -1189,7 +1226,13 @@ namespace StardewValley_Mod_Manager
                     }
                 }
             }
+            else if (!progressPopup.IsCancelled)
+            {
+                MessageBox.Show("모든 모드가 최신 버전입니다!", "No Updates", MessageBoxButton.OK);
+            }
         }
+
+
 
         private bool IsConfigFileEmpty()
         {

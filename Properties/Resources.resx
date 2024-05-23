@@ -190,6 +190,9 @@
   <data name="SmapiStart" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SmapiStart.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="SMMImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SMMImage.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="TestMainWindow" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\TestMainWindow.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
