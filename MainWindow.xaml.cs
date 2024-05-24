@@ -159,6 +159,7 @@ namespace StardewValley_Mod_Manager
                 possiblePaths.Add(Path.Combine(driveRoot, "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley", "StardewModdingAPI.exe"));
                 possiblePaths.Add(Path.Combine(driveRoot, "Program Files", "Steam", "steamapps", "common", "Stardew Valley", "StardewModdingAPI.exe"));
                 possiblePaths.Add(Path.Combine(driveRoot, "GOG Galaxy", "Games", "Stardew Valley", "StardewModdingAPI.exe"));
+                possiblePaths.Add(Path.Combine(driveRoot, "SteamLibrary", "steamapps", "common", "Stardew Valley", "StardewModdingAPI.exe"));
             }
 
             foreach (var path in possiblePaths)
