@@ -29,7 +29,6 @@
    - 모드 리스트에서 이미지로 체크박스를 구현하여 필요한 모드만 로드할 수 있도록 제작하였다.
    - 버그 및 오류가 난 파일을 쉽게 제거하여 모드를 로드해 볼 수 있다.
 - 자동업데이트 및 모드의 버전 체크
-    - 기존의 모드 로더(모드오거나이저, 볼텍스등)에서 유료 플랜을 가입해야만 가능한 자동 업데이트를 무료로 지원할 예정.
     - 현재 버전을 모드리스트 탭에서 확인가능하며 최신버전의 모드와 자신이 소유하고있는 모드의 버전을 확인할 수 있게 지원할 예정.
     - 또한 몇번의 클릭만으로 간단하게 업데이트 하여 사용자 친화적으로 개발 할 예정.
       
@@ -68,7 +67,6 @@ This is a program that allows you to manage mods for the Stardew Valley game.
   - Implemented checkboxes as images in the mod list to enable loading only the required mods.
   - Easily remove bugs and errors so that you can load mods for testing.
 - Automatic updates and mod version check
-  - Will provide free automatic updates that were previously only available by subscribing to a paid plan on existing mod loaders (Mod Organizer, Vortex, etc.).
   - Support for checking the current version in the mod list tab and verifying the version of the latest mod and the mod owned by the user.
   - Also planning to develop a user-friendly update process with just a few clicks.
       
