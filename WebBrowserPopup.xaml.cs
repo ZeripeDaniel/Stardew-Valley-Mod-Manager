@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace StardewValley_Mod_Manager
 {
@@ -11,7 +12,7 @@ namespace StardewValley_Mod_Manager
 
         public void Navigate(string url)
         {
-            webBrowser.Address = url;
+            webView.Source = new Uri(url);
         }
     }
 }

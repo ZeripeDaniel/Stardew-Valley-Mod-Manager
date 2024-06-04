@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +23,7 @@ namespace StardewValley_Mod_Manager
         private string apiKey;
         private readonly string _gameDomainName;
         private readonly HttpClient _client;
+        private readonly string apiKeyFilePath;
 
         public NexusModsOAuth(string gameDomainName = "stardewvalley")
         {
@@ -27,12 +31,42 @@ namespace StardewValley_Mod_Manager
             _client = new HttpClient();
             uuid = Guid.NewGuid().ToString();
             webSocket = new ClientWebSocket();
+            apiKeyFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\StardewValleyModManager\\", "sdvmodmanager_api_key.txt");
+
+            // API 키 파일이 존재하면 읽어오기
+            if (File.Exists(apiKeyFilePath))
+            {
+                apiKey = File.ReadAllText(apiKeyFilePath);
+                if (!string.IsNullOrEmpty(apiKey))
+                {
+                    _client.DefaultRequestHeaders.Clear();
+                    _client.DefaultRequestHeaders.Add("apikey", apiKey);
+                    _client.DefaultRequestHeaders.Add("Application-Name", "StardewValleyModManager");
+                    _client.DefaultRequestHeaders.Add("Application-Version", "0.0.2");
+                }
+            }
         }
 
         public async Task ConnectAsync()
         {
-            await webSocket.ConnectAsync(new Uri(WebSocketUrl), CancellationToken.None);
-            await SendAuthRequestAsync();
+            if (string.IsNullOrEmpty(apiKey) || !(await IsApiKeyValidAsync()))
+            {
+                await webSocket.ConnectAsync(new Uri(WebSocketUrl), CancellationToken.None);
+                await SendAuthRequestAsync();
+            }
+        }
+
+        private async Task<bool> IsApiKeyValidAsync()
+        {
+            try
+            {
+                var response = await _client.GetAsync("https://api.nexusmods.com/v1/users/validate.json");
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private async Task SendAuthRequestAsync()
@@ -76,6 +110,7 @@ namespace StardewValley_Mod_Manager
                 {
                     apiKey = response.data.api_key;
                     Console.WriteLine("API Key received: " + apiKey);
+                    File.WriteAllText(apiKeyFilePath, apiKey); // API 키 파일에 저장
                     _client.DefaultRequestHeaders.Clear();
                     _client.DefaultRequestHeaders.Add("apikey", apiKey);
                     _client.DefaultRequestHeaders.Add("Application-Name", "StardewValleyModManager");
@@ -83,10 +118,14 @@ namespace StardewValley_Mod_Manager
                 }
                 else if (response.data.connection_token != null)
                 {
+                    if (string.IsNullOrEmpty(apiKey))
+                    {
+                        MessageBox.Show("로그인되지 않았습니다. 다시 시도해 주세요.", "인증 실패", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                     connectionToken = response.data.connection_token;
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        OpenUrlInPopup($"https://www.nexusmods.com/sso?id={uuid}&application=sdvmodmanager");
+                        OpenUrlInDefaultBrowser($"https://www.nexusmods.com/sso?id={uuid}&application=sdvmodmanager");
                     });
                 }
             }
@@ -96,11 +135,20 @@ namespace StardewValley_Mod_Manager
             }
         }
 
-        private void OpenUrlInPopup(string url)
+        private void OpenUrlInDefaultBrowser(string url)
         {
-            var popup = new WebBrowserPopup();
-            popup.Navigate(url);
-            popup.ShowDialog();
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"웹 브라우저를 여는 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public async Task<string> GetLatestModVersionAsync(string modId)
