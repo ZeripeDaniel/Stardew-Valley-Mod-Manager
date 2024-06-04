@@ -1,64 +1,129 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.WebSockets;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-
-#pragma warning disable CS8600
-#pragma warning disable CS8618
-#pragma warning disable CS8601
-#pragma warning disable CS8602
-#pragma warning disable CS8603
-#pragma warning disable CS8604
-#pragma warning disable CS8605
-#pragma warning disable CS8606
-#pragma warning disable CS8607
-#pragma warning disable CS8608
-#pragma warning disable CS8609
+using System.Windows;
 
 namespace StardewValley_Mod_Manager
 {
     public class NexusModsOAuth
     {
-        private readonly string _clientId;
-        private readonly Uri _ssoUri = new Uri("wss://sso.nexusmods.com");
-        private ClientWebSocket _webSocket;
-        private string _uuid;
+        private const string WebSocketUrl = "wss://sso.nexusmods.com";
+        private ClientWebSocket webSocket;
+        private string uuid;
+        private string connectionToken;
+        private string apiKey;
+        private readonly string _gameDomainName;
+        private readonly HttpClient _client;
 
-        public NexusModsOAuth(string clientId)
+        public NexusModsOAuth(string gameDomainName = "stardewvalley")
         {
-            _clientId = clientId;
-            _webSocket = new ClientWebSocket();
+            _gameDomainName = gameDomainName;
+            _client = new HttpClient();
+            uuid = Guid.NewGuid().ToString();
+            webSocket = new ClientWebSocket();
         }
 
-        public async Task<string> ConnectAsync()
+        public async Task ConnectAsync()
         {
-            await _webSocket.ConnectAsync(_ssoUri, CancellationToken.None);
-            _uuid = Guid.NewGuid().ToString();
-            var data = new { id = _uuid, token = (string)null, protocol = 2 };
-            var json = JObject.FromObject(data).ToString();
-            var bytes = Encoding.UTF8.GetBytes(json);
-            await _webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
-
-            return _uuid;
+            await webSocket.ConnectAsync(new Uri(WebSocketUrl), CancellationToken.None);
+            await SendAuthRequestAsync();
         }
 
-        public string GetAuthorizationUrl()
+        private async Task SendAuthRequestAsync()
         {
-            return $"https://www.nexusmods.com/sso?id={_uuid}&application={_clientId}";
+            var data = new
+            {
+                id = uuid,
+                token = connectionToken,
+                protocol = 2
+            };
+            string message = JsonConvert.SerializeObject(data);
+            var bytes = Encoding.UTF8.GetBytes(message);
+            await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
+            await ReceiveMessagesAsync();
         }
 
-        public async Task<string> ReceiveApiKeyAsync()
+        private async Task ReceiveMessagesAsync()
         {
-            var buffer = new byte[1024];
-            var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-            var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
-            var response = JObject.Parse(json);
-            return response["data"]["api_key"].ToString();
+            var buffer = new byte[1024 * 4];
+            while (webSocket.State == WebSocketState.Open)
+            {
+                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                if (result.MessageType == WebSocketMessageType.Close)
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                }
+                else
+                {
+                    var responseString = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    OnMessageReceived(responseString);
+                }
+            }
+        }
+
+        private void OnMessageReceived(string message)
+        {
+            var response = JsonConvert.DeserializeObject<SSOResponse>(message);
+            if (response.success)
+            {
+                if (response.data.api_key != null)
+                {
+                    apiKey = response.data.api_key;
+                    Console.WriteLine("API Key received: " + apiKey);
+                    _client.DefaultRequestHeaders.Clear();
+                    _client.DefaultRequestHeaders.Add("apikey", apiKey);
+                    _client.DefaultRequestHeaders.Add("Application-Name", "StardewValleyModManager");
+                    _client.DefaultRequestHeaders.Add("Application-Version", "0.0.2");
+                }
+                else if (response.data.connection_token != null)
+                {
+                    connectionToken = response.data.connection_token;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        OpenUrlInPopup($"https://www.nexusmods.com/sso?id={uuid}&application=sdvmodmanager");
+                    });
+                }
+            }
+            else
+            {
+                Console.WriteLine("Error: " + response.error);
+            }
+        }
+
+        private void OpenUrlInPopup(string url)
+        {
+            var popup = new WebBrowserPopup();
+            popup.Navigate(url);
+            popup.ShowDialog();
+        }
+
+        public async Task<string> GetLatestModVersionAsync(string modId)
+        {
+            var url = $"https://api.nexusmods.com/v1/games/{_gameDomainName}/mods/{modId}.json";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var latestVersion = JObject.Parse(json)["version"]?.ToString();
+            return latestVersion;
+        }
+
+        public class SSOResponse
+        {
+            public bool success { get; set; }
+            public SSOData data { get; set; }
+            public string error { get; set; }
+        }
+
+        public class SSOData
+        {
+            public string connection_token { get; set; }
+            public string api_key { get; set; }
         }
     }
 }

@@ -18,6 +18,9 @@
     <Compile Update="SettingsWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="WebBrowserPopup.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
@@ -35,6 +38,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="WebBrowserPopup.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
